@@ -9,5 +9,10 @@
         <text name="sss_clear" text="Loeschen" />
         <text name="sss_state_degraded" text="Smart Shop Search ist voruebergehend deaktiviert" />
         <text name="sss_indexing" text="Indiziere Artikel..." />
+        <text name="sss_reason_exact" text="Exakte Uebereinstimmung" />
+        <text name="sss_reason_fuzzy" text="Naeherungstreffer" />
+        <text name="sss_reason_alias" text="Erkanntes Synonym" />
+        <text name="sss_reason_constraint" text="Spezifikation" />
+        <text name="sss_reason_compat" text="Kompatibilitaet" />
     </texts>
 </l10N>

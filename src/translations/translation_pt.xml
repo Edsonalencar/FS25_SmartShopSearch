@@ -9,5 +9,10 @@
         <text name="sss_clear" text="Limpar" />
         <text name="sss_state_degraded" text="A Pesquisa Inteligente da Loja está temporariamente desativada" />
         <text name="sss_indexing" text="Indexando itens..." />
+        <text name="sss_reason_exact" text="Correspondência exata" />
+        <text name="sss_reason_fuzzy" text="Correspondência aproximada" />
+        <text name="sss_reason_alias" text="Sinónimo reconhecido" />
+        <text name="sss_reason_constraint" text="Especificação" />
+        <text name="sss_reason_compat" text="Compatibilidade" />
     </texts>
 </l10N>

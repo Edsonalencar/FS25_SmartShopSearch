@@ -35,6 +35,8 @@ SmartShopSearch.manifest = {
     "app/LinguisticData.lua",
     "app/SearchState.lua",
     "app/BenchQueries.lua",
+    "app/FilterPresets.lua",
+    "app/ReasonFormatter.lua",
     "adapters/GameLogger.lua",
     "adapters/HookRegistry.lua",
     "adapters/SettingsStore.lua",

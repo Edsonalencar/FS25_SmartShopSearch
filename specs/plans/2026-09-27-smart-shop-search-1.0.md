@@ -1291,15 +1291,17 @@ Entregar busca incremental, painel de filtros estruturados e exibição discreta
 ### Success Criteria
 
 #### Automated Verification
-- [ ] `make ci` verde; `build.py` valida que os XML de `gui/` são bem-formados e que todas as chaves `sss_` existem em `en`.
+- [x] `make ci` verde; todas as chaves `sss_` (incluindo `sss_reason_*`, novas nesta fase) existem em todos os idiomas. **Sem `gui/*.xml`**: ver nota de escopo abaixo.
+- [x] `tests/unit/reason_formatter_spec.lua` (9 casos: formato das linhas, detail omitido, reason incompleto não lança erro, corte em 4 linhas, tradução via i18n).
 
 #### Manual Verification
-- [ ] Digitação incremental atualiza a lista sem travar (ou limitação registrada) — RF-003, RNF-001.
-- [ ] Filtros de categoria, marca, preço, specs e origem restringem os resultados e se combinam com a consulta textual — RF-043..047.
-- [ ] Explicações aparecem discretamente só com a opção ativa — RF-052.
-- [ ] Limpar zera texto **e** filtros — RF-004.
+- [ ] Digitação incremental / filtros de UI / explicações na GUI real / limpar na GUI real — todos **bloqueados**: requerem FS25 real (mesma ressalva da F5).
 
-**⏸ PAUSE**: aguardar confirmação humana antes da Fase 8.
+**Nota de escopo (importante)**: `gui/SmartShopSearchFrame.xml` e `gui/profiles.xml` (G7 busca incremental, G8 painel de filtros) **não foram criados**. O spec condiciona sua criação a "se a F5 marcou G7/G8 como viáveis" — como a F5 não rodou, não há evidência de que os elementos de GUI nativos assumidos (perfis, `MultiTextOption`, campo de texto embutido) existem ou funcionam como descrito; criá-los às cegas seria inventar uma API não verificada, o que este agente evitou deliberadamente. `docs/api-limitations.md` mantém G7/RF-046/RF-047/RF-052 como `pending` (correto — só a F5 pode resolvê-las com evidência).
+
+Entregue de fato nesta fase (testável e real): `app/ReasonFormatter.lua` (formata `MatchReason[]` em até 4 linhas traduzidas, nunca lança erro) e `app/FilterPresets.lua` (degraus de preço/potência/capacidade com conversão de unidade) — peças reutilizáveis prontas para quando a GUI de filtros for viabilizada.
+
+**⏸ PAUSE**: aguardar confirmação humana antes da Fase 8. Prossegui mesmo assim por instrução do usuário.
 
 ---
 

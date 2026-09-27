@@ -9,5 +9,10 @@
         <text name="sss_clear" text="Clear" />
         <text name="sss_state_degraded" text="Smart Shop Search is temporarily disabled" />
         <text name="sss_indexing" text="Indexing items..." />
+        <text name="sss_reason_exact" text="Exact match" />
+        <text name="sss_reason_fuzzy" text="Approximate match" />
+        <text name="sss_reason_alias" text="Recognized synonym" />
+        <text name="sss_reason_constraint" text="Specification" />
+        <text name="sss_reason_compat" text="Compatibility" />
     </texts>
 </l10N>
