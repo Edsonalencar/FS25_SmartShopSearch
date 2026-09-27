@@ -1,9 +1,9 @@
 -- Baseline de performance (tests/bench/run.lua --write-baseline). Não editar à mão.
 return {
-    buildMs = 140.0720,
-    simpleP50Ms = 2.6460,
-    simpleP95Ms = 3.3230,
-    compositeP50Ms = 2.6700,
-    compositeP95Ms = 3.1110,
-    memoryKb = 27228.9043,
+    buildMs = 79.3190,
+    simpleP50Ms = 0.0200,
+    simpleP95Ms = 0.0270,
+    compositeP50Ms = 0.3320,
+    compositeP95Ms = 0.5060,
+    indexMemoryKb = 8002.2490,
 }
