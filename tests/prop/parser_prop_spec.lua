@@ -4,7 +4,7 @@ local FileDataLoader = require("tests.stubs.FileDataLoader")
 local Tokenizer = NS.core.Tokenizer
 
 local SEED = 20260927
-local N = 2000
+local N = 5000
 
 local function makeRng(seed)
     local state = seed
@@ -100,7 +100,7 @@ local function tokenCountInSpan(norm, span)
     return #Tokenizer.tokenize(sub)
 end
 
-describe("QueryParser (propriedades, 2000 consultas aleatórias, seed fixa)", function()
+describe("QueryParser (propriedades, 5000 consultas aleatórias, seed fixa)", function()
     local parser, normalizer = buildParser()
 
     it("nunca lança erro, e todo token é contabilizado em exatamente um destino", function()
