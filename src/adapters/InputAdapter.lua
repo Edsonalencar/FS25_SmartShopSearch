@@ -21,7 +21,9 @@ function InputAdapter:bind()
     local function callback()
         self.onTrigger()
     end
-    local ok, eventId = pcall(function()
+    -- Nos FS anteriores, registerActionEvent devolve `success, eventId`; aceita
+    -- também um único retorno com o id, até a F5 confirmar a assinatura.
+    local ok, first, second = pcall(function()
         return g_inputBinding:registerActionEvent(
             InputAction.SMART_SHOP_SEARCH,
             self,
@@ -32,7 +34,11 @@ function InputAdapter:bind()
             true
         )
     end)
-    if ok and eventId then
+    local eventId = second
+    if eventId == nil and type(first) ~= "boolean" then
+        eventId = first
+    end
+    if ok and first ~= false and eventId ~= nil then
         self.eventId = eventId
         pcall(function()
             g_inputBinding:setActionEventTextVisibility(eventId, true)
