@@ -1361,14 +1361,14 @@ Regras: `level=declared` soma `W.compat.declared = 1.0`, `joint` soma `0.7`. `po
 ### Success Criteria
 
 #### Automated Verification
-- [ ] `make ci` verde; `compat_spec` inclui o caso "sem evidência → não compatível".
+- [x] `make ci` verde (fmt-check, lint, deps, trace, test, bench, verify); `compat_spec` inclui o caso obrigatório "sem evidência → não compatível" (RF-050), mais 12 outros casos (fixture `tests/fixtures/compat/joints.xml` + casos extras).
 
 #### Manual Verification
-- [ ] Selecionar um trator → "Compatíveis" lista implementos com engate compatível; o detalhe mostra a evidência (RF-048, RF-051).
-- [ ] "implementos compatíveis com este trator" no diálogo, com o trator selecionado, dá o mesmo resultado (RF-049).
-- [ ] O tempo até exibir fica ≤ 1 s em catálogo base, com indicador durante o processamento.
+- [ ] Selecionar um trator → "Compatíveis" lista implementos / "implementos compatíveis com este trator" / tempo ≤ 1s — todos **bloqueados**: requerem FS25 real (mesma ressalva da F5). `adapters/CompatibilityExtractor.lua` (caminhos XML de `attacherJoints`/`inputAttacherJoints`/combinações) é 100% `[A VALIDAR]`, e a atribuição de papel veículo/implemento em `SearchService:_searchCompat` usa uma heurística (`species == "vehicle"`) não confirmada.
 
-**⏸ PAUSE**: aguardar confirmação humana antes da Fase 9.
+**O que foi entregue e É verificável**: `core/compat/CompatibilityResolver.lua` — cópia fiel do algoritmo do spec (combinação declarada > engate compatível > sem evidência = nil; potência insuficiente penaliza sem excluir; texto nunca decide, RF-050) — com 13 casos de teste, incluindo o caso obrigatório. `docs/api-limitations.md` mantém RF-048 em `pending` (só a F5 pode decidir `unavailable`/evidência).
+
+**⏸ PAUSE**: aguardar confirmação humana antes da Fase 9. Prossegui mesmo assim por instrução do usuário.
 
 ---
 

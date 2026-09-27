@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!-- Pares veículo/implemento para core/compat/CompatibilityResolver (F8). -->
+<compatFixtures>
+    <case id="declared-combination">
+        <vehicle xmlFilename="v1.xml" power="150">
+            <attach type="cat2" />
+            <combination xmlFilename="i1.xml" />
+        </vehicle>
+        <implement xmlFilename="i1.xml" neededPower="100">
+            <inputAttach type="cat3" />
+        </implement>
+        <expect level="declared" powerOk="true" />
+    </case>
+    <case id="joint-match">
+        <vehicle xmlFilename="v2.xml" power="150">
+            <attach type="cat2" />
+        </vehicle>
+        <implement xmlFilename="i2.xml" neededPower="100">
+            <inputAttach type="cat2" />
+        </implement>
+        <expect level="joint" powerOk="true" />
+    </case>
+    <case id="incompatible-no-matching-joint">
+        <vehicle xmlFilename="v3.xml" power="150">
+            <attach type="cat2" />
+        </vehicle>
+        <implement xmlFilename="i3.xml" neededPower="100">
+            <inputAttach type="cat3" />
+        </implement>
+        <expect level="none" />
+    </case>
+    <case id="no-data-at-all">
+        <vehicle xmlFilename="v4.xml" />
+        <implement xmlFilename="i4.xml" />
+        <expect level="none" />
+    </case>
+    <case id="insufficient-power">
+        <vehicle xmlFilename="v5.xml" power="50">
+            <attach type="cat2" />
+        </vehicle>
+        <implement xmlFilename="i5.xml" neededPower="100">
+            <inputAttach type="cat2" />
+        </implement>
+        <expect level="joint" powerOk="false" />
+    </case>
+    <!-- RF-050: itens com nome idêntico (ver comentário no teste), mas SEM
+         nenhuma evidência técnica (engate/combinação) — nunca compatíveis
+         só por parecerem relacionados pelo texto. -->
+    <case id="same-name-no-evidence" req="RF-050">
+        <vehicle xmlFilename="universal-adapter-v.xml" power="150">
+            <attach type="cat2" />
+        </vehicle>
+        <implement xmlFilename="universal-adapter-i.xml" neededPower="50">
+            <inputAttach type="cat3" />
+        </implement>
+        <expect level="none" />
+    </case>
+</compatFixtures>

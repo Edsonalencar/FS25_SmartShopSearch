@@ -74,12 +74,18 @@ function listener:loadMap() -- luacheck: ignore 212/self
             clock = GameClock.new(),
         }
 
+        NS.adapters.compatibilityExtractor = NS.adapters.CompatibilityExtractor.new(NS.app.logger)
+
         NS.app.searchService = NS.app.SearchService.new({
             indexLifecycle = NS.app.indexLifecycle,
             normalizer = normalizer,
             settings = NS.app.settings,
             logger = NS.app.logger,
             data = NS.app.data,
+            compatibilityExtractor = NS.adapters.compatibilityExtractor,
+            selectedItemFn = function()
+                return NS.adapters.shopGuiAdapter and NS.adapters.shopGuiAdapter:selectedItem()
+            end,
         })
 
         NS.app.searchState = NS.app.SearchState.new()

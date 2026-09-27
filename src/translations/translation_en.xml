@@ -14,5 +14,7 @@
         <text name="sss_reason_alias" text="Recognized synonym" />
         <text name="sss_reason_constraint" text="Specification" />
         <text name="sss_reason_compat" text="Compatibility" />
+        <text name="sss_compat_button" text="Compatible" />
+        <text name="sss_compat_query" text="compatible with this" />
     </texts>
 </l10N>

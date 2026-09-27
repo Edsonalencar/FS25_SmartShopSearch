@@ -11,6 +11,7 @@ local ComparatorParser = NS.core.ComparatorParser
 local ContextParser = NS.core.ContextParser
 local QueryParser = NS.core.QueryParser
 local FilterEngine = NS.core.FilterEngine
+local CompatibilityResolver = NS.core.CompatibilityResolver
 local SearchScorer = NS.core.SearchScorer
 local Ranker = NS.core.Ranker
 local IdMatcher = NS.core.IdMatcher
@@ -103,6 +104,110 @@ local function conceptItemIds(index, concept)
     return ids
 end
 
+--- Escolhe o alvo de "compatível com X" quando a consulta não usa "este/
+--- selecionado" (F8, RF-049): busca só de texto sobre `targetTerms`, usando
+--- o top-1 apenas se score >= 0.6 e a distância para o 2º for >= 0.1. A
+--- escolha do ALVO usa texto; a compatibilidade em si nunca usa (RF-050).
+function SearchService:_resolveCompatTextTarget(index, query)
+    local words = query.context.targetTerms
+    if not words or #words == 0 then
+        return nil
+    end
+    local hitsByItem = {}
+    for i, word in ipairs(words) do
+        local candidates = ExactMatcher.match(index, word)
+        for itemId in pairs(candidates) do
+            local hit = FieldMatcher.best(candidates, itemId, self.weights, word)
+            if hit then
+                hitsByItem[itemId] = hitsByItem[itemId] or {}
+                hitsByItem[itemId][i] = hit
+            end
+        end
+    end
+    local termsQuery = { terms = {} }
+    for i, word in ipairs(words) do
+        termsQuery.terms[i] = { text = word, idf = index.idf[word] or 1 }
+    end
+    local scored = {}
+    for itemId, hits in pairs(hitsByItem) do
+        local s = SearchScorer.score(termsQuery, index.items[itemId], hits, {}, self.weights)
+        scored[#scored + 1] = { id = itemId, score = s }
+    end
+    table.sort(scored, function(a, b)
+        return a.score > b.score
+    end)
+    if #scored == 0 or scored[1].score < 0.6 then
+        query.warnings[#query.warnings + 1] = "alvo de compatibilidade não encontrado"
+        return nil
+    end
+    if scored[2] and (scored[1].score - scored[2].score) < 0.1 then
+        query.warnings[#query.warnings + 1] = "alvo de compatibilidade ambíguo"
+        return nil
+    end
+    return index.items[scored[1].id]
+end
+
+--- Resolve "compatível com este/selecionado" ou "compatível com <texto>"
+--- (F8): compara o alvo contra todos os itens via CompatibilityResolver
+--- (core, RF-050 — nunca por texto) e devolve os resultados já rankeados.
+--- Só roda se houver um adapters.CompatibilityExtractor injetado.
+function SearchService:_searchCompat(index, query)
+    local extractor = self.deps.compatibilityExtractor
+    if not extractor then
+        query.warnings[#query.warnings + 1] = "compatibilidade indisponível"
+        return {}
+    end
+
+    local targetItem
+    if query.context.target == "selected" then
+        targetItem = self.deps.selectedItemFn and self.deps.selectedItemFn()
+        if not targetItem then
+            query.warnings[#query.warnings + 1] = "nenhum item selecionado para compatibilidade"
+        end
+    else
+        targetItem = self:_resolveCompatTextTarget(index, query)
+    end
+    if not targetItem then
+        return {}
+    end
+
+    local targetInfo = extractor:infoFor(targetItem)
+    if not targetInfo then
+        query.warnings[#query.warnings + 1] = "sem dados de compatibilidade para o alvo"
+        return {}
+    end
+
+    -- Heurística de papel (F8, sem F5 para confirmar): itens de espécie
+    -- "vehicle" são o veículo; os demais são avaliados como implemento.
+    local targetIsVehicle = targetItem.species == "vehicle"
+
+    local results = {}
+    for _, item in ipairs(index.items) do
+        if item.id ~= targetItem.id then
+            local itemInfo = extractor:infoFor(item)
+            if itemInfo then
+                local vehicleInfo = targetIsVehicle and targetInfo or itemInfo
+                local implementInfo = targetIsVehicle and itemInfo or targetInfo
+                local compat = CompatibilityResolver.evaluate(vehicleInfo, implementInfo)
+                if compat then
+                    local weight = (compat.level == "declared") and self.weights.compat.declared
+                        or self.weights.compat.joint
+                    local detail = table.concat(compat.evidence, "; ")
+                    if compat.powerOk == false then
+                        weight = math.max(0, weight - self.weights.compat.powerInsufficient)
+                        detail = detail .. " (potência insuficiente)"
+                    end
+                    local reason = Models.reason("compat", "compat", query.raw, item.xmlFilename, detail, weight)
+                    results[#results + 1] = Models.result(item, math.min(1, weight), 1, { reason })
+                end
+            end
+        end
+    end
+
+    local maxResults = self.deps.settings and self.deps.settings:get("search#maxResults") or 300
+    return Ranker.rank(results, self.weights, maxResults)
+end
+
 --- @param text string
 --- @param ui table|nil  UiFilters
 --- @return SearchResult[] results
@@ -113,6 +218,10 @@ function SearchService:_searchInner(text, ui) -- luacheck: ignore 212
 
     local parser = self:_queryParser()
     local query = parser:parse(text, self.deps.locale)
+
+    if index and query.context and query.context.kind == "compatibleWith" then
+        return self:_searchCompat(index, query), query
+    end
 
     if not index then
         return {}, query

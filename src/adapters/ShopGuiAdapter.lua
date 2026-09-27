@@ -73,11 +73,15 @@ function ShopGuiAdapter:ensureButton(shopMenu)
         end
         local searchButton = Utils.cloneButton(template, shopMenu.buttonsPanel)
         local clearButton = Utils.cloneButton(template, shopMenu.buttonsPanel)
+        local compatButton = Utils.cloneButton(template, shopMenu.buttonsPanel)
         if searchButton and searchButton.setText and g_i18n then
             searchButton:setText(g_i18n:getText("sss_button_search"))
         end
         if clearButton and clearButton.setText and g_i18n then
             clearButton:setText(g_i18n:getText("sss_clear"))
+        end
+        if compatButton and compatButton.setText and g_i18n then
+            compatButton:setText(g_i18n:getText("sss_compat_button"))
         end
         if searchButton then
             searchButton.onClickCallback = function()
@@ -92,7 +96,15 @@ function ShopGuiAdapter:ensureButton(shopMenu)
                 clearButton:setVisible(false)
             end
         end
-        return { searchButton = searchButton, clearButton = clearButton }
+        if compatButton then
+            compatButton.onClickCallback = function()
+                self:searchCompatibleWithSelected()
+            end
+            if compatButton.setVisible then
+                compatButton:setVisible(false)
+            end
+        end
+        return { searchButton = searchButton, clearButton = clearButton, compatButton = compatButton }
     end)
     if not ok then
         self:_degrade("ensureButton", entry)
@@ -119,6 +131,11 @@ function ShopGuiAdapter:updateButtonVisibility(shopMenu)
     end
     if entry.clearButton and entry.clearButton.setVisible then
         entry.clearButton:setVisible(eligible == true and self.searchState:isActive())
+    end
+    if entry.compatButton and entry.compatButton.setVisible then
+        -- G10: só na página de detalhes, com um item selecionado.
+        local onDetails = eligible == true and pageName == "pageShopItemDetails"
+        entry.compatButton:setVisible(onDetails and self:selectedItem() ~= nil)
     end
 end
 
@@ -234,6 +251,42 @@ function ShopGuiAdapter:clear()
     if not ok then
         self:_degrade("clear", err)
     end
+end
+
+--- Item atualmente selecionado na página de detalhes (G10, usado por
+--- "compatível com este trator"). [A VALIDAR na F5]: caminho exato do
+--- StoreItem selecionado na página de detalhes da loja.
+--- @return IndexedItem|nil
+function ShopGuiAdapter:selectedItem()
+    if not (g_shopMenu and g_shopMenu.pageShopItemDetails) then
+        return nil
+    end
+    local ok, storeItem = pcall(function()
+        return g_shopMenu.pageShopItemDetails.currentItem or g_shopMenu.pageShopItemDetails.item
+    end)
+    if not ok or not storeItem then
+        return nil
+    end
+    local index = self.searchService.deps.indexLifecycle and self.searchService.deps.indexLifecycle.index
+    if not index then
+        return nil
+    end
+    for _, item in ipairs(index.items) do
+        if item.ref == storeItem then
+            return item
+        end
+    end
+    return nil
+end
+
+--- Abre a busca de "compatível com este veículo/implemento" (G10), a partir
+--- do item selecionado. Reusa a frase "compatível com este", que o
+--- QueryParser (core/lang/ContextParser) já reconhece como contexto
+--- target="selected" — mais simples do que montar o Query manualmente.
+function ShopGuiAdapter:searchCompatibleWithSelected()
+    local compatPhrase = (g_i18n and g_i18n:getText("sss_compat_query")) or "compativel com este"
+    local results, query = self.searchService:search(compatPhrase, nil)
+    self:show(results, query)
 end
 
 --- Instala os hooks na loja via HookRegistry (ADR-03). Chamar uma vez no

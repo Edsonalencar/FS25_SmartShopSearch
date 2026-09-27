@@ -25,7 +25,7 @@ SmartShopSearch.manifest = {
     "core/lang/ContextParser.lua",
     "core/lang/QueryParser.lua",
     "core/rank/FilterEngine.lua",
-    -- F8 : core/compat/CompatibilityResolver.lua
+    "core/compat/CompatibilityResolver.lua",
     "app/SafeCall.lua",
     "app/StateMachine.lua",
     "app/Diagnostics.lua",
@@ -45,6 +45,7 @@ SmartShopSearch.manifest = {
     "adapters/SpecExtractor.lua",
     "adapters/StoreCatalogSource.lua",
     "adapters/InputAdapter.lua",
+    "adapters/CompatibilityExtractor.lua",
     "adapters/ShopGuiAdapter.lua",
     "adapters/GameBootstrap.lua",
 }

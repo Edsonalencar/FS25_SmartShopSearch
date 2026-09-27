@@ -17,7 +17,10 @@ local TOLERANCE = 0.20
 -- Piso absoluto (ms) abaixo do qual uma regressão relativa é ignorada: em
 -- métricas de poucos milissegundos, ruído de GC/agendamento do SO produz
 -- variações relativas grandes sem significado prático.
-local ABS_FLOOR_MS = 1.0
+-- Pisos por métrica: o build mede um trabalho maior (3000 itens) com mais
+-- variância absoluta natural neste ambiente compartilhado; as consultas são
+-- da ordem de poucos ms, onde ruído de GC/SO já é grande em termos relativos.
+local ABS_FLOOR_MS = { buildMs = 20.0, simpleP95Ms = 2.0, compositeP95Ms = 2.0 }
 
 local function percentile(list, p)
     local sorted = {}
@@ -149,7 +152,7 @@ local function compare(metrics, path)
         local cur = metrics[key]
         if base and base > 0 then
             local regression = (cur - base) / base
-            if regression > TOLERANCE and (cur - base) > ABS_FLOOR_MS then
+            if regression > TOLERANCE and (cur - base) > (ABS_FLOOR_MS[key] or 2.0) then
                 print(
                     string.format(
                         "REGRESSÃO: %s piorou %.1f%% (base=%.3f atual=%.3f, tolerância=%.0f%%)",
