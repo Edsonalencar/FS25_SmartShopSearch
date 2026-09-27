@@ -18,6 +18,12 @@
 - [ ] G10 — "compatíveis com este veículo"
 - [ ] G11 — estado vazio sem erro
 - [ ] G12 — "limpar" volta à listagem anterior
+- [ ] Degradação: com `<debug enabled="true" simulateFailure="gui"/>` em
+  `modSettings/FS25_SmartShopSearch/settings.xml`, abrir a loja degrada o mod
+  (uma linha de erro no log) e a loja original continua funcionando
+- [ ] Indicador "Indexando itens…" aparece no botão de busca durante o
+  build fatiado e a busca de compatíveis, e some ao terminar
+- [ ] `sssSet showReasons 1` / `sssSet incremental 0` gravam em `settings.xml`
 
 ## Multiplayer / dedicado
 

@@ -19,7 +19,7 @@ Formato de linha obrigatório para o parser: `| Id | Componente | Verificação 
 | RF-008 | IndexBuilder (category), AliasResolver | golden:txt-trator | F3 |
 | RF-009 | StoreCatalogSource (modTitle), IndexBuilder (mod) | golden:mod-name; api-limitations | F2/F6 |
 | RF-010 | StoreCatalogSource (author), IndexBuilder (author) | golden:mod-author; api-limitations | F2/F6 |
-| RF-011 | SpecExtractor, SpecRegistry, IndexBuilder (specs) | golden:unit-power,unit-cap; api-findings §8 | F4/F6 |
+| RF-011 | SpecExtractor, SpecRegistry, IndexBuilder (specs), IndexLifecycle (fase secundária) | golden:unit-power,unit-cap,mass-gt; unit:pending_spec,adapters_spec; api-findings §8 | F4/F6 |
 | RF-012 | TextNormalizer | unit:text_spec; golden:txt-upper,txt-trator-upper | F2 |
 | RF-013 | Utf8.fold, TextNormalizer | unit:text_spec; golden:txt-accent | F2 |
 | RF-014 | TextNormalizer (colapso/trim) | unit:text_spec; golden:txt-spaces | F2 |
@@ -28,7 +28,7 @@ Formato de linha obrigatório para o parser: `| Id | Componente | Verificação 
 | RF-017 | FuzzyMatcher, Osa (inserção) | golden:fuzzy-insert | F3 |
 | RF-018 | FuzzyMatcher, Osa (substituição) | golden:fuzzy-subst | F3 |
 | RF-019 | Osa (transposição) | unit:fuzzy_spec; golden:fuzzy-tratro | F3 |
-| RF-020 | FuzzyMatcher.matchPhrase, AliasResolver | golden:fuzzy-jon-dere,fuzzy-jhon-deere,fuzzy-john-dere | F3 |
+| RF-020 | FuzzyMatcher.matchPhraseWindow/matchItemPhrases, AliasResolver | golden:fuzzy-jon-dere,fuzzy-jhon-deere,fuzzy-john-dere; unit:pending_spec | F3 |
 | RF-021 | Weights.fuzzyMaxByLen, Ranker minScore | golden:neg-noise,neg-unrelated | F3 |
 | RF-022 | FuzzyMatcher.maxDistFor (≤3 → 0), penalty.shortToken | golden:neg-short; unit:fuzzy_spec | F3 |
 | RF-023 | AliasResolver + data/<lang>/aliases.xml | unit:alias_spec; golden:alias-carreta | F3 |
@@ -60,7 +60,7 @@ Formato de linha obrigatório para o parser: `| Id | Componente | Verificação 
 | RF-049 | ContextParser, SearchService (context), botão G10 | golden:ctx-compat; smoke:G10 | F4/F8 |
 | RF-050 | CompatibilityResolver (sem evidência → nil) | unit:compat_spec (caso obrigatório) | F8 |
 | RF-051 | MatchReason, SearchScorer, FilterEngine | unit:rank_spec (reasons sempre); golden:rank-field; console:sssQuery | F2/F4 |
-| RF-052 | ReasonFormatter, ShopGuiAdapter (G9) | unit:reason_formatter_spec; smoke:G9; api-limitations | F7 |
+| RF-052 | ReasonFormatter, ShopGuiAdapter (G9), Console.set (sssSet showReasons) | unit:reason_formatter_spec,pending_spec; smoke:G9; api-limitations | F7 |
 | RF-053 | Spike F5 | api-findings §5 | F5 |
 | RF-054 | ModHubCatalogSource (condicional, ADR-12) | api-limitations | F5/F9 |
 | RF-055 | Porta CatalogSource (adaptador separado) | check_deps; revisão ADR-12 | F1/F5 |
@@ -68,7 +68,7 @@ Formato de linha obrigatório para o parser: `| Id | Componente | Verificação 
 | RF-057 | translations/translation_br.xml, data/pt | build.py (chaves br/pt) | F1/F9 |
 | RF-058 | translations/*.xml, data/<lang> (fora do código) | build.py (chaves); deps | F1 |
 | RF-059 | LinguisticData, data/<lang>/aliases.xml | unit:alias_spec (troca de locale) | F3 |
-| RF-060 | SafeCall, StateMachine.degrade, HookRegistry | unit:app_spec,resilience_spec; smoke simulateFailure | F1/F6 |
+| RF-060 | SafeCall, StateMachine.degrade, HookRegistry, ShopGuiAdapter (debug#simulateFailure) | unit:app_spec,resilience_spec,adapters_spec; smoke simulateFailure | F1/F6 |
 | RF-061 | IndexBuilder (campos opcionais) | unit:index_spec (sem marca) | F2 |
 | RF-062 | IndexBuilder (pcall por item), StoreCatalogSource | unit:index_spec; golden:res-magic | F2/F6 |
 
@@ -76,9 +76,9 @@ Formato de linha obrigatório para o parser: `| Id | Componente | Verificação 
 
 | Id | Componente | Verificação | Fase |
 |---|---|---|---|
-| RNF-001 | IndexBuilder.step fatiado, debounce, sem update permanente | bench; smoke G7 | F2/F7 |
+| RNF-001 | IndexBuilder.step fatiado, IndexLifecycle.stepPending (só com a loja aberta), debounce, sem update permanente | bench; unit:pending_spec,adapters_spec; smoke G7 | F2/F7 |
 | RNF-002 | SearchIndex, TrigramIndex | bench (p95 ≤5/15 ms) | F2–F4 |
-| RNF-003 | IndexedItem.ref somente leitura, strings uma vez | bench (≤8 MB); unit:index_spec (não mutação) | F2 |
+| RNF-003 | IndexedItem.ref somente leitura, strings uma vez, campos/postings compartilhados | bench (≤8 MB, delta isolado); unit:index_spec (não mutação), pending_spec | F2 |
 | RNF-004 | Núcleo local; sem rede (L1) | deps:offline/lua51 | F1 |
 | RNF-005 | core/text, lang, index, match, rank, compat; adapters/GUI | deps:core-purity; revisão | F1–F8 |
 | RNF-006 | SpecRegistry, units.xml, data/<lang>, Weights | unit:alias_spec (novo idioma só dados) | F3/F4 |
@@ -138,7 +138,7 @@ Formato de linha obrigatório para o parser: `| Id | Componente | Verificação 
 | AC-MOD-03 | autor pesquisável | golden:mod-author | F2 |
 | AC-RES-01 | sem resultado não gera erro | golden:res-empty | F2 |
 | AC-RES-02 | metadado ausente não quebra indexação | unit:index_spec | F2 |
-| AC-RES-03 | falha interna não inutiliza a loja | unit:resilience_spec; smoke simulateFailure | F2/F6 |
+| AC-RES-03 | falha interna não inutiliza a loja | unit:resilience_spec,adapters_spec; smoke simulateFailure | F2/F6 |
 | AC-RES-04 | remoção do mod restaura comportamento | smoke remoção | F9 |
 | AC-PUB-01 | TestRunner aprovado | relatório TestRunner | F9 |
 | AC-PUB-02 | log sem erros do mod | checklist log | F9 |
