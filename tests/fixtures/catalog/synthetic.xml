@@ -173,6 +173,13 @@
         origin="mod" modName="FS25_CustomTrailer" modTitle="Custom Equipment Pack" author="ModderXYZ">
         <spec id="capacity" value="24000" unit="l" />
     </item>
+    <!-- F3 (AC-RNK-01): nome com erro de digitação ("Fent") que fuzzy-casa com a
+         marca Fendt, usado para provar que marca exata/alias supera fuzzy de nome. -->
+    <item xmlFilename="mods/FS25_FentPack/fentCustomTrailer.xml" name="Fent Custom Trailer" brand="RECKER"
+        brandTitle="Recker" categoryId="TRAILERSM" categoryTitle="Reboques" species="vehicle" price="70000"
+        origin="mod" modName="FS25_FentPack" modTitle="Fent Equipment Pack" author="ModderXYZ">
+        <spec id="capacity" value="10000" unit="l" />
+    </item>
 
     <!-- Itens de DLC -->
     <item xmlFilename="dlc/goldenFields/tractorZ.xml" name="DLC Special Tractor Z" brand="CASEIH" brandTitle="Case IH"

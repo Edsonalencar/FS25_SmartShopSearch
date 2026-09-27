@@ -67,7 +67,11 @@ function SearchScorer.score(query, item, termHits, conceptHits, W) -- luacheck: 
         total = total + 1
         local h = conceptHits[c]
         if h then
-            raw = raw + w
+            -- Um MatchReason com `weight` próprio (ex.: bônus de fuzzy de
+            -- texto para um item que não satisfaz o facet do conceito, mas
+            -- cujo texto se parece com o termo que originou o conceito —
+            -- AC-RNK-01) substitui o peso pleno do conceito por esse valor.
+            raw = raw + ((h.weight and h.weight > 0) and h.weight or w)
             hit = hit + 1
             reasons[#reasons + 1] = h
         end

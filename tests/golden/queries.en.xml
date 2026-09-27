@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<golden lang="en">
+    <case id="en-tractor" req="RF-025" query="tractor"><expectTop n="10" minHits="8" category="TRACTORS*" /></case>
+    <case id="en-trailer" req="RF-025" query="trailer"><expectTop n="5" minHits="3" category="TRAILERS*" /></case>
+    <case id="en-baler" req="RF-025" query="baler"><expectTop n="5" minHits="2" category="BALERS*" /></case>
+    <case id="en-sprayer" req="RF-025" query="sprayer"><expectTop n="5" minHits="3" category="SPRAYERS*" /></case>
+    <case id="en-tratcor" req="RF-025" query="tratcor">
+        <expectTop n="10" minHits="8" category="TRACTORS*" />
+    </case>
+</golden>

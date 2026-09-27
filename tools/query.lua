@@ -9,6 +9,7 @@ require("tests.support.load").load()
 local NS = SmartShopSearch
 local FixtureCatalogSource = require("tests.stubs.FixtureCatalogSource")
 local FakeClock = require("tests.stubs.FakeClock")
+local FileDataLoader = require("tests.stubs.FileDataLoader")
 
 local queryText = arg[1]
 local fixturePath = arg[2] or "tests/fixtures/catalog/synthetic.xml"
@@ -27,12 +28,16 @@ local builder = NS.core.IndexBuilder.new(normalizer)
 local diagnostics = NS.app.Diagnostics.new()
 local lifecycle =
     NS.app.IndexLifecycle.new(diagnostics, { catalog = catalog, builder = builder, clock = FakeClock.new() })
-local settings = { get = function(_, key)
-    if key == "search#maxResults" then
-        return 300
-    end
-end }
-local svc = NS.app.SearchService.new({ indexLifecycle = lifecycle, normalizer = normalizer, settings = settings })
+local settings = {
+    get = function(_, key)
+        if key == "search#maxResults" then
+            return 300
+        end
+    end,
+}
+local data = NS.app.LinguisticData.new(FileDataLoader.new("src/data"), { "pt", "en" })
+local svc =
+    NS.app.SearchService.new({ indexLifecycle = lifecycle, normalizer = normalizer, settings = settings, data = data })
 
 local results, query = svc:search(queryText)
 

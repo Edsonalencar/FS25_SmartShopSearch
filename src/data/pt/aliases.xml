@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+  Vocabulário mínimo obrigatório da 1.0 (spec F3): categorias do jogo
+  base/agro em português, mais espécie/origem. Marcas ficam em
+  data/en/aliases.xml (carregado sempre — nomes de marca não são
+  traduzidos pelo jogo). Os ids reais de categoria são confirmados na F5;
+  a correção depois é só de dados, sem mudar código (ADR-13).
+-->
+<aliases lang="pt">
+    <concept kind="category" id="TRACTORS*">
+        <term>trator</term>
+        <term>tratores</term>
+        <term>trator agrícola</term>
+    </concept>
+    <concept kind="category" id="SPRAYERS*">
+        <term>pulverizador</term>
+        <term>pulverizadores</term>
+        <term>autopropelido</term>
+    </concept>
+    <concept kind="category" id="SEEDERS*">
+        <term>semeadeira</term>
+        <term>semeadeiras</term>
+        <term>semeadora</term>
+    </concept>
+    <concept kind="category" id="PLANTERS*">
+        <term>plantadeira</term>
+        <term>plantadeiras</term>
+    </concept>
+    <concept kind="category" id="TRAILERS*">
+        <term>reboque</term>
+        <term>reboques</term>
+        <term>carreta</term>
+        <term>carretas</term>
+        <term>trailer</term>
+    </concept>
+    <concept kind="category" id="HARVESTERS*">
+        <term>colheitadeira</term>
+        <term>colheitadeiras</term>
+        <term>colhedora</term>
+        <term>ceifadeira</term>
+    </concept>
+    <concept kind="category" id="BALERS*">
+        <term>enfardadeira</term>
+        <term>enfardadeiras</term>
+    </concept>
+    <concept kind="category" id="CULTIVATORS*">
+        <term>grade</term>
+        <term>grades</term>
+    </concept>
+    <concept kind="category" id="PLOWS*">
+        <term>arado</term>
+        <term>arados</term>
+    </concept>
+    <concept kind="category" id="SUBSOILERS*">
+        <term>subsolador</term>
+        <term>subsoladores</term>
+    </concept>
+    <concept kind="category" id="WHEELLOADERS*">
+        <term>pá carregadeira</term>
+        <term>carregadeira</term>
+    </concept>
+    <concept kind="category" id="TELELOADERS*">
+        <term>telescópica</term>
+        <term>carregadeira telescópica</term>
+    </concept>
+    <concept kind="category" id="TRUCKS*">
+        <term>caminhão</term>
+        <term>caminhões</term>
+    </concept>
+    <concept kind="species" id="PLACEABLE">
+        <term>construção</term>
+        <term>construções</term>
+        <term>placeable</term>
+    </concept>
+    <concept kind="origin" id="dlc">
+        <term>dlc</term>
+        <term>expansão</term>
+    </concept>
+    <concept kind="origin" id="mod">
+        <term>mod</term>
+        <term>mods</term>
+    </concept>
+    <concept kind="origin" id="base">
+        <term>original</term>
+        <term>base</term>
+    </concept>
+</aliases>

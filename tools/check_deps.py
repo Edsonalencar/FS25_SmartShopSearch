@@ -14,9 +14,14 @@ CORE_FORBIDDEN = [
     r"\bio\.",
 ]
 APP_FORBIDDEN = [r"\bg_[A-Za-z]", r"\bShopMenu\b", r"\bXMLFile\b", r"adapters[/.]", r"\bio\."]
+# \bload\s*\( sozinho também bateria em chamadas/definições de método
+# `obj:load(...)`/`obj.load(...)` — legítimas na porta DataLoader
+# (`load(locale, name)`, PRD/spec) e em SettingsStore/XMLFile. O lookbehind
+# exclui esses casos, mantendo a proibição sobre o `load(...)` global
+# (carregamento dinâmico de código, RNF-004/RMH-010).
 ALL_FORBIDDEN = [
     r"\bloadstring\s*\(",
-    r"\bload\s*\(",
+    r"(?<![.:\w])load\s*\(",
     r"\bdofile\s*\(",
     r"\brequire\s*\(",
     r"\bos\.execute",

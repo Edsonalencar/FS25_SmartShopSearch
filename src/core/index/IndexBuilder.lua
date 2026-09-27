@@ -5,6 +5,8 @@
 local NS = SmartShopSearch
 local Tokenizer = NS.core.Tokenizer
 local SearchIndex = NS.core.SearchIndex
+-- TrigramIndex.lua vem depois de IndexBuilder.lua no manifesto (F3): acessar
+-- via NS.core.TrigramIndex em tempo de chamada, não no topo do arquivo.
 
 local IndexBuilder = {}
 IndexBuilder.__index = IndexBuilder
@@ -116,6 +118,14 @@ local function extractItem(self, raw)
 
     -- RF-062: item sem NENHUM campo textual (nem sequer nome) ainda é
     -- indexado (AC-RES-02) — apenas fica pesquisável só por facet/spec.
+
+    -- F3: frases multi-palavra (brand/category/mod) para fuzzy de frase (ADR-14).
+    for _, fieldName in ipairs({ "brand", "category", "mod" }) do
+        local field = item.fields[fieldName]
+        if field and #field.tokens >= 2 then
+            item.phrases[#item.phrases + 1] = field.norm
+        end
+    end
 
     if raw.price ~= nil then
         if isFiniteNonNegativeNumber(raw.price) then
@@ -232,6 +242,9 @@ function IndexBuilder:finish(state) -- luacheck: ignore 212/self
     for token, df in pairs(index.vocabulary) do
         index.idf[token] = math.log(1 + N / df)
     end
+
+    -- F3: índice de trigramas do vocabulário, para candidatos fuzzy (ADR-05).
+    index.trigramIndex = NS.core.TrigramIndex.build(index.vocabulary)
 
     index.skipped = state.skipped
 end

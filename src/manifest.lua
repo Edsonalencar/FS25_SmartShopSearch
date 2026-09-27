@@ -14,7 +14,10 @@ SmartShopSearch.manifest = {
     "core/rank/Weights.lua",
     "core/rank/SearchScorer.lua",
     "core/rank/Ranker.lua",
-    -- F3+: core/lang/AliasResolver.lua, core/index/TrigramIndex.lua, core/match/FuzzyMatcher.lua
+    "core/match/Osa.lua",
+    "core/index/TrigramIndex.lua",
+    "core/match/FuzzyMatcher.lua",
+    "core/lang/AliasResolver.lua",
     -- F4+: core/lang/*Parser.lua, core/rank/FilterEngine.lua
     -- F8 : core/compat/CompatibilityResolver.lua
     "app/SafeCall.lua",
@@ -23,9 +26,11 @@ SmartShopSearch.manifest = {
     "app/IndexLifecycle.lua",
     "app/SearchService.lua",
     "app/Console.lua",
+    "app/LinguisticData.lua",
     "adapters/GameLogger.lua",
     "adapters/HookRegistry.lua",
     "adapters/SettingsStore.lua",
     "adapters/GameLocale.lua",
+    "adapters/XmlDataLoader.lua",
     "adapters/GameBootstrap.lua",
 }

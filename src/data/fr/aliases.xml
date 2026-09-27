@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!-- Vocabulário mínimo em francês; "en" é sempre carregado junto (marcas, S-06). -->
+<aliases lang="fr">
+    <concept kind="category" id="TRACTORS*">
+        <term>tracteur</term>
+        <term>tracteurs</term>
+    </concept>
+    <concept kind="category" id="SPRAYERS*">
+        <term>pulvérisateur</term>
+        <term>pulverisateur</term>
+    </concept>
+    <concept kind="category" id="TRAILERS*">
+        <term>remorque</term>
+        <term>remorques</term>
+    </concept>
+    <concept kind="category" id="HARVESTERS*">
+        <term>moissonneuse</term>
+    </concept>
+    <concept kind="category" id="BALERS*">
+        <term>presse à balles</term>
+        <term>presse a balles</term>
+    </concept>
+    <concept kind="origin" id="dlc">
+        <term>dlc</term>
+        <term>extension</term>
+    </concept>
+    <concept kind="origin" id="mod">
+        <term>mod</term>
+        <term>mods</term>
+    </concept>
+    <concept kind="origin" id="base">
+        <term>original</term>
+        <term>base</term>
+    </concept>
+</aliases>

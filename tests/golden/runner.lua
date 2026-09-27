@@ -8,6 +8,7 @@ local IndexBuilder = SmartShopSearch.core.IndexBuilder
 local FixtureCatalogSource = require("tests.stubs.FixtureCatalogSource")
 local MemoryLogger = require("tests.stubs.MemoryLogger")
 local FakeClock = require("tests.stubs.FakeClock")
+local FileDataLoader = require("tests.stubs.FileDataLoader")
 
 local M = {}
 
@@ -43,11 +44,13 @@ function M.serviceFor(fixtureProfile)
             return nil
         end,
     }
+    local data = NS.app.LinguisticData.new(FileDataLoader.new("src/data"), { "pt", "en" }, logger)
     local svc = NS.app.SearchService.new({
         indexLifecycle = lifecycle,
         normalizer = normalizer,
         settings = settings,
         logger = logger,
+        data = data,
     })
     local entry = { service = svc, logger = logger, diagnostics = diagnostics, lifecycle = lifecycle }
     serviceCache[fixtureProfile] = entry

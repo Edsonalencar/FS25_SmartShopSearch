@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+  Marcas (carregadas sempre — S-06 — nomes de marca não são traduzidos pelo
+  jogo) mais categorias/espécie/origem em inglês, para o locale "en" e para
+  jogadores que buscam em inglês mesmo com outro idioma de jogo ativo.
+-->
+<aliases lang="en">
+    <concept kind="brand" id="JOHNDEERE">
+        <term>john deere</term>
+        <term>jd</term>
+        <term>deere</term>
+        <term>jhon deere</term>
+    </concept>
+    <concept kind="brand" id="NEWHOLLAND">
+        <term>new holland</term>
+        <term>nh</term>
+    </concept>
+    <concept kind="brand" id="CASEIH">
+        <term>case ih</term>
+        <term>case</term>
+    </concept>
+    <concept kind="brand" id="MASSEYFERGUSON">
+        <term>massey ferguson</term>
+        <term>massey</term>
+        <term>mf</term>
+    </concept>
+    <concept kind="brand" id="FENDT">
+        <term>fendt</term>
+    </concept>
+    <concept kind="brand" id="CLAAS">
+        <term>claas</term>
+    </concept>
+    <concept kind="brand" id="VALTRA">
+        <term>valtra</term>
+    </concept>
+    <concept kind="brand" id="KUHN">
+        <term>kuhn</term>
+    </concept>
+    <concept kind="brand" id="HORSCH">
+        <term>horsch</term>
+    </concept>
+    <concept kind="brand" id="AMAZONE">
+        <term>amazone</term>
+    </concept>
+    <concept kind="brand" id="LEMKEN">
+        <term>lemken</term>
+    </concept>
+    <concept kind="brand" id="KRONE">
+        <term>krone</term>
+    </concept>
+    <concept kind="brand" id="VADERSTAD">
+        <term>vaderstad</term>
+        <term>väderstad</term>
+    </concept>
+    <concept kind="brand" id="JACTO">
+        <term>jacto</term>
+    </concept>
+    <concept kind="brand" id="STARA">
+        <term>stara</term>
+    </concept>
+    <concept kind="brand" id="BALDAN">
+        <term>baldan</term>
+    </concept>
+    <concept kind="brand" id="JAN">
+        <term>jan</term>
+    </concept>
+    <concept kind="brand" id="TATU">
+        <term>tatu</term>
+    </concept>
+    <concept kind="brand" id="KVERNELAND">
+        <term>kverneland</term>
+    </concept>
+    <concept kind="brand" id="POTTINGER">
+        <term>pottinger</term>
+        <term>pöttinger</term>
+    </concept>
+
+    <concept kind="category" id="TRACTORS*">
+        <term>tractor</term>
+        <term>tractors</term>
+    </concept>
+    <concept kind="category" id="SPRAYERS*">
+        <term>sprayer</term>
+        <term>sprayers</term>
+        <term>self-propelled sprayer</term>
+    </concept>
+    <concept kind="category" id="SEEDERS*">
+        <term>seeder</term>
+        <term>seeders</term>
+    </concept>
+    <concept kind="category" id="PLANTERS*">
+        <term>planter</term>
+        <term>planters</term>
+    </concept>
+    <concept kind="category" id="TRAILERS*">
+        <term>trailer</term>
+        <term>trailers</term>
+        <term>cart</term>
+    </concept>
+    <concept kind="category" id="HARVESTERS*">
+        <term>harvester</term>
+        <term>harvesters</term>
+        <term>combine</term>
+    </concept>
+    <concept kind="category" id="BALERS*">
+        <term>baler</term>
+        <term>balers</term>
+    </concept>
+    <concept kind="category" id="CULTIVATORS*">
+        <term>cultivator</term>
+        <term>disc harrow</term>
+    </concept>
+    <concept kind="category" id="PLOWS*">
+        <term>plow</term>
+        <term>plough</term>
+    </concept>
+    <concept kind="category" id="SUBSOILERS*">
+        <term>subsoiler</term>
+    </concept>
+    <concept kind="category" id="WHEELLOADERS*">
+        <term>wheel loader</term>
+        <term>loader</term>
+    </concept>
+    <concept kind="category" id="TELELOADERS*">
+        <term>telehandler</term>
+    </concept>
+    <concept kind="category" id="TRUCKS*">
+        <term>truck</term>
+        <term>trucks</term>
+    </concept>
+
+    <concept kind="species" id="PLACEABLE">
+        <term>placeable</term>
+        <term>construction</term>
+    </concept>
+    <concept kind="origin" id="dlc">
+        <term>dlc</term>
+        <term>expansion</term>
+    </concept>
+    <concept kind="origin" id="mod">
+        <term>mod</term>
+        <term>mods</term>
+    </concept>
+    <concept kind="origin" id="base">
+        <term>base</term>
+        <term>vanilla</term>
+    </concept>
+</aliases>
