@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+  Mod descartável de spike (Fase 5 do spec). NÃO faz parte do produto:
+  fica fora de src/, é ignorado pelo build.py e nunca é publicado.
+  Existe só para ser carregado manualmente no FS25 (Windows/Proton) e
+  responder aos itens [A VALIDAR] do PRD antes das Fases 6-8.
+-->
+<modDesc descVersion="96">
+    <author>FS25 Mods Editor</author>
+    <version>0.0.1.0</version>
+    <title>
+        <en>SSS Spike (descartável)</en>
+    </title>
+    <description>
+        <en><![CDATA[Ferramenta de investigação interna, não publicar. Usada só para validar APIs do FS25 antes de implementar o FS25_SmartShopSearch.]]></en>
+    </description>
+    <iconFilename>icon_spike.dds</iconFilename>
+    <multiplayer supported="false" />
+    <extraSourceFiles>
+        <sourceFile filename="spike.lua" />
+    </extraSourceFiles>
+</modDesc>

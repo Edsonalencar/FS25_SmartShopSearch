@@ -1156,16 +1156,24 @@ Validar em FS25 real todos os itens `[A VALIDAR]` do PRD e deste spec, gerar os 
 ### Success Criteria
 
 #### Automated Verification
-- [ ] `make golden` continua verde com os novos fixtures reais (os casos que declaram `fixtures="base,..."` rodam neles). Se algum caso falhar por diferença de ids, corrigir **somente os dados** de aliases.
-- [ ] `make trace` passa; `docs/api-limitations.md` não tem `unavailable` sem evidência.
-- [ ] O esqueleto da F1 passou no TestRunner (relatório arquivado em `dist/testrunner/`).
+- [ ] `make golden` continua verde com os novos fixtures reais — **bloqueado**: sem os dumps reais, `base.xml`/`base+dlc.xml`/`base+mods.xml` não existem.
+- [x] `make trace` passa; `docs/api-limitations.md` permanece com as condicionais em `pending` (correto até a F5 rodar de verdade — `check_trace.py` sem `--release` não exige resolução).
+- [ ] O esqueleto da F1 passou no TestRunner — **bloqueado**: requer Windows + FS25 + licença.
 
 #### Manual Verification
-- [ ] Esqueleto da F1 instalado: o jogo carrega o savegame sem erros do mod no `log.txt` e mostra só a linha `info` de carga.
-- [ ] Spike: botão, diálogo, categoria virtual ordenada, lista vazia e "voltar" funcionam na loja.
-- [ ] `docs/api-findings/fs25-<ver>.md` completo, com todas as seções preenchidas.
+- [ ] Esqueleto da F1 instalado no jogo — **bloqueado**, requer ambiente Windows/FS25 que não existe nesta sessão.
+- [ ] Spike: botão, diálogo, categoria virtual ordenada, lista vazia e "voltar" — **bloqueado**, idem.
+- [ ] `docs/api-findings/fs25-<ver>.md` completo — **não preenchido**: exigiria fabricar respostas sem evidência real, o que este agente se recusa a fazer.
 
-**⏸ PAUSE**: aguardar confirmação humana antes da Fase 6.
+**⚠ Fase 5 é a única do spec que depende majoritariamente de execução humana no jogo (texto do próprio Goal desta fase) — este ambiente de desenvolvimento não tem Windows, FS25 instalado, nem uma licença do jogo.** Entregue nesta sessão:
+- `spike/FS25_SSS_Spike/` (modDesc.xml + spike.lua): mod descartável completo com `sssSpikeProbe` (probe de ~35 APIs candidatas), `sssSpikeDump <perfil>` (grava o catálogo no formato exato de `tests/fixtures/catalog/*.xml`, com contagem de specs e amostra de 50 caminhos), `sssSpikeBench` (mede iteração de `getItems()` e leitura de XML de 100 itens) e `sssSpikeGui`/`sssSpikeGuiEmpty` (protótipo G1-G6/G11/G12 com 3 itens em ordem não alfabética + lista vazia).
+- `docs/api-findings/TEMPLATE.md` com as 11 seções exigidas pelo spec, prontas para copiar e preencher.
+
+**Para prosseguir de verdade, o usuário precisa**: instalar o FS25 numa máquina Windows (ou Linux+Proton), linkar `spike/FS25_SSS_Spike/` na pasta de mods, abrir uma savegame, rodar os comandos `sssSpike*` no console de desenvolvedor, copiar `docs/api-findings/TEMPLATE.md` para `fs25-<versão>.md` preenchendo com a saída real, colocar os dumps gerados em `tests/fixtures/catalog/{base,base+dlc,base+mods}.xml`, e então corrigir os ids de `data/*/aliases.xml` conforme os achados.
+
+**As Fases 6-8 abaixo foram implementadas mesmo assim**, seguindo as mesmas suposições `[A VALIDAR]` documentadas no PRD (a mesma estratégia já usada nos adapters da F1) — o código está pronto e passa lint/deps, mas **não pode ser testado offline** (Testing Strategy do spec: "Adapters não são testados offline — são cobertos pelo smoke em jogo"), então permanece não verificado contra o jogo real até a F5 acontecer.
+
+**⏸ PAUSE**: aguardar confirmação humana antes da Fase 6. **Já que o usuário pediu para avançar por todas as fases sem pausar, prossegui mesmo assim** — mas o resultado das Fases 6-9 carrega esta mesma ressalva.
 
 ---
 
