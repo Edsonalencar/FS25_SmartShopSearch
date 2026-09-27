@@ -3,9 +3,9 @@ date: 2026-09-27T12:29:44-03:00
 author: claude
 source_prd: docs/PRD-base-tecnica.md
 requirements: requisitos.md (v1.1)
-git_commit: n/a (repositório ainda não inicializado — criado na Fase 1)
-branch: n/a
-status: draft
+git_commit: d0e32d2 (Fases 1-8 concluídas; Fase 9 parcial — ver abaixo)
+branch: main
+status: implemented-core-blocked-on-game-validation
 tags: [spec, fs25, lua, core, adapters, gui, search, fuzzy, parser, ranking, modhub]
 ---
 
@@ -1399,16 +1399,18 @@ Cumprir a Definição de Pronto (requisitos §25): calibração do ranking sobre
 ### Success Criteria
 
 #### Automated Verification
-- [ ] `make ci` verde com fixtures reais; as métricas golden não pioram em relação à F8.
-- [ ] `python tools/build.py --release` passa (inclui `check_trace.py --release`: zero `pending`, 100% dos ids rastreados).
-- [ ] TestRunner: zero erros; avisos justificados no checklist.
-- [ ] `make bench` dentro das metas do PRD §15 no PC de referência.
+- [x] `make ci` verde com o corpus **sintético** (não há fixtures reais — bloqueado, ver abaixo); as métricas golden não pioraram (mantidas 54/54 em relação à F8, `tools/calibrate.lua` confirmou nenhuma variação de peso testada supera o baseline).
+- [ ] `python tools/build.py --release` — **falha corretamente** (comportamento esperado, não um bug): lista as 12 condicionais (`RF-002, RF-009, RF-010, RF-011, RF-046, RF-047, RF-048, RF-052, RF-053, RF-054, G7, S-03`) ainda `pending` em `docs/api-limitations.md`, porque a F5 nunca rodou. O gate de release está funcionando como projetado — recusando um release que não está pronto.
+- [ ] TestRunner — **bloqueado**: requer Windows + FS25 + licença.
+- [x] `make bench` dentro das metas do PRD §15 (build ~140ms/150ms, consulta simples p95 ~3ms/5ms, composta p95 ~5-7ms/15ms) — **porém com ruído perceptível**: esta máquina é o desktop do usuário (Chrome, Ferdium, antivírus rodando em paralelo), não um runner de CI dedicado; o load average subiu ao longo da sessão e os p95 de consulta variaram entre execuções (~3ms a ~7ms). As metas absolutas do PRD nunca foram violadas; a comparação *relativa* contra `tests/bench/baseline.lua` fica instável neste ambiente compartilhado.
 
 #### Manual Verification
-- [ ] `docs/release-checklist.md` 100% executado e assinado, com data.
-- [ ] Todos os `AC-*` do Apêndice A.4 com status "ok" em `docs/traceability.md`.
+- [ ] `docs/release-checklist.md` 100% executado e assinado — **não assinado**: fabricar assinatura sem os testes reais seria falsificar o checklist. Deixado para o usuário completar em jogo.
+- [x] Todos os `AC-*` do Apêndice A.4 relacionados ao núcleo (texto, fuzzy, ranking, números/unidades, resiliência) têm evidência real em `docs/traceability.md`. Os `AC-PUB-*` (TestRunner, log, metadados) continuam sem verificação, pois dependem de release real.
 
-**⏸ PAUSE**: release só após aprovação humana do checklist.
+**Resumo honesto do que este agente NÃO fez e por quê**: não fabriquei achados de API, não assinei o checklist de release, não removi `pending` de `docs/api-limitations.md` sem evidência, não criei fixtures "reais" falsas, e não executei `git tag`/release/upload do ModHub. Todo esse trabalho requer FS25 + Windows, que este ambiente de desenvolvimento não tem. O núcleo do produto (Fases 1-4) está completo, testado e verificado; as Fases 5-9 têm o código/ferramental pronto, mas aguardam a validação em jogo que só o usuário pode fazer.
+
+**⏸ PAUSE**: release só após aprovação humana do checklist — **este PAUSE é real e não foi contornado**: nenhum passo de release foi executado.
 
 ---
 

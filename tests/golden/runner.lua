@@ -30,10 +30,12 @@ end
 --- @param fixtureProfile string  ex. "synthetic", "base"
 --- @param primaryLocale string|nil  "pt" (padrão) ou "en" — define a ordem de
 --- locales (decimal/milhar do NumberParser vêm do primeiro) e cacheia por par.
-function M.serviceFor(fixtureProfile, primaryLocale)
+--- @param weightsOverride table|nil  tools/calibrate.lua: pula o cache e usa
+--- esta tabela de pesos em vez de core/rank/Weights (nunca cacheado).
+function M.serviceFor(fixtureProfile, primaryLocale, weightsOverride)
     primaryLocale = primaryLocale or "pt"
     local cacheKey = fixtureProfile .. "|" .. primaryLocale
-    if serviceCache[cacheKey] then
+    if not weightsOverride and serviceCache[cacheKey] then
         return serviceCache[cacheKey]
     end
     local NS = SmartShopSearch
@@ -63,9 +65,12 @@ function M.serviceFor(fixtureProfile, primaryLocale)
         settings = settings,
         logger = logger,
         data = data,
+        weights = weightsOverride,
     })
     local entry = { service = svc, logger = logger, diagnostics = diagnostics, lifecycle = lifecycle }
-    serviceCache[cacheKey] = entry
+    if not weightsOverride then
+        serviceCache[cacheKey] = entry
+    end
     return entry
 end
 
@@ -264,8 +269,8 @@ end
 
 --- Roda um único <case>; retorna métricas simples do caso (para agregação).
 --- @param primaryLocale string|nil  "pt" (padrão) ou "en" (tests/golden/queries.en.xml)
-function M.runCase(caseNode, fixtureProfile, primaryLocale)
-    local entry = M.serviceFor(fixtureProfile, primaryLocale)
+function M.runCase(caseNode, fixtureProfile, primaryLocale, weightsOverride)
+    local entry = M.serviceFor(fixtureProfile, primaryLocale, weightsOverride)
     local query = caseNode.attrs.query
     local ui = nil -- filtros de UI entram na F7 (painel); FilterEngine já aplica constraints
     local results, parsedQuery = entry.service:search(query, ui)
