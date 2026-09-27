@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<stopwords lang="en">
+    <w>the</w>
+    <w>a</w>
+    <w>an</w>
+    <w>of</w>
+    <w>with</w>
+    <w>for</w>
+    <w>in</w>
+    <w>on</w>
+    <w>at</w>
+    <w>to</w>
+    <w>and</w>
+</stopwords>

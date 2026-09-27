@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<numbers decimal="," thousands=".">
+    <multiplier word="mil" factor="1000" />
+    <multiplier word="k" factor="1000" />
+    <multiplier word="mi" factor="1000000" />
+    <multiplier word="milhao" factor="1000000" />
+    <multiplier word="milhoes" factor="1000000" />
+    <spelled word="um" value="1" />
+    <spelled word="uma" value="1" />
+    <spelled word="dois" value="2" />
+    <spelled word="duas" value="2" />
+    <spelled word="tres" value="3" />
+    <spelled word="quatro" value="4" />
+    <spelled word="cinco" value="5" />
+    <spelled word="seis" value="6" />
+    <spelled word="sete" value="7" />
+    <spelled word="oito" value="8" />
+    <spelled word="nove" value="9" />
+    <spelled word="dez" value="10" />
+    <spelled word="vinte" value="20" />
+    <spelled word="trinta" value="30" />
+    <spelled word="quarenta" value="40" />
+    <spelled word="cinquenta" value="50" />
+    <spelled word="cem" value="100" />
+    <spelled word="cento" value="100" />
+    <spelled word="duzentos" value="200" />
+    <spelled word="trezentos" value="300" />
+    <spelled word="quatrocentos" value="400" />
+    <spelled word="quinhentos" value="500" />
+</numbers>

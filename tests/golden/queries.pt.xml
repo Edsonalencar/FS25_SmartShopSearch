@@ -24,7 +24,16 @@
     <case id="cmp-multi" ac="AC-CMP-01" query="john 6r 250"><expectFirst name="6R 250" /></case>
     <case id="mod-name" ac="AC-MOD-02" query="agromods"><expectAll top="2" origin="mod" /></case>
     <case id="mod-author" ac="AC-MOD-03" query="farmerbr"><expectTop n="3" minHits="1" origin="mod" /></case>
-    <case id="mod-indexed" ac="AC-MOD-01" query="custom trailer 24t">
+    <!--
+      Adaptação F4 (documentada): a query original era "custom trailer 24t".
+      Com o ComparatorParser (F4), "24t" passa a ser interpretado como uma
+      constraint de massa (24000 kg ±5%) — nenhum item do catálogo sintético
+      tem spec de peso, então a constraint elimina todos os resultados
+      (comportamento correto de filtro eliminatório, PRD §6.6). Trocado
+      para "custom trailer" (sem o sufixo ambíguo de unidade), que ainda
+      identifica o item de mod via nome/categoria.
+    -->
+    <case id="mod-indexed" ac="AC-MOD-01" query="custom trailer">
         <expectTop n="3" minHits="1" origin="mod" />
     </case>
     <case id="res-empty" ac="AC-RES-01" query="zzzzqqqq">
@@ -73,4 +82,58 @@
         <expectAll top="3" brand="FENDT" category="TRACTORS*" />
     </case>
     <case id="alias-carreta" req="RF-023" query="carreta"><expectTop n="5" minHits="3" category="TRAILERS*" /></case>
+
+    <case id="composite-01" req="RF-034" query="trtor jon dere entre 200 e 300 cv por menos de 150 mil">
+        <expectConcept kind="category" value="TRACTORS*" />
+        <expectConcept kind="brand" value="JOHNDEERE" />
+        <expectConstraint spec="power" op="between" min="147.1" max="220.7" />
+        <expectConstraint spec="money" op="lt" max="150000" />
+        <expectTerms></expectTerms>
+        <expectAll top="3" brand="JOHNDEERE" category="TRACTORS*" />
+    </case>
+    <case id="num-int" ac="AC-NUM-01" query="acima de 200 cv">
+        <expectConstraint spec="power" op="gt" min="147.1" />
+    </case>
+    <case id="num-mil" ac="AC-NUM-02" query="menos de 150 mil">
+        <expectConstraint spec="money" op="lt" max="150000" />
+    </case>
+    <case id="num-local" ac="AC-NUM-03" query="reboque acima de 40.000 litros">
+        <expectConstraint spec="volume" op="gt" min="40000" />
+    </case>
+    <case id="num-local-dec" ac="AC-NUM-03" query="largura acima de 7,5 m">
+        <expectConstraint spec="length" op="gt" min="7.5" />
+    </case>
+    <case id="num-rs" req="RF-029" query="trator ate R$ 150 mil">
+        <expectConstraint spec="money" op="lte" max="150000" />
+    </case>
+    <case id="unit-power" ac="AC-UNI-01" query="trator 200cv">
+        <expectConstraint spec="power" op="between" min="139.7" max="154.5" />
+    </case>
+    <case id="unit-hp" req="RF-027" query="tractor 200 hp">
+        <expectConstraint spec="power" op="between" min="141.7" max="156.6" />
+    </case>
+    <case id="unit-cap" ac="AC-UNI-02" query="carreta 40 mil litros">
+        <expectConstraint spec="volume" op="between" min="38000" max="42000" />
+    </case>
+    <case id="unit-conv" ac="AC-UNI-03" query="tanque acima de 20 m3">
+        <expectConstraint spec="volume" op="gt" min="20000" />
+    </case>
+    <case id="cmp-gt" ac="AC-CMP2-01" query="mais de 300 cv"><expectConstraint spec="power" op="gt" min="220.6" /></case>
+    <case id="cmp-lt" ac="AC-CMP2-02" query="abaixo de 150000">
+        <expectConstraint spec="money" op="lt" max="150000" />
+    </case>
+    <case id="cmp-range" ac="AC-CMP2-03" query="entre 200 e 300 cv">
+        <expectConstraint spec="power" op="between" min="147.1" max="220.7" />
+    </case>
+    <case id="partial" ac="AC-CMP-02" query="trator verde acima de 200 cv"><expectTerms>verde</expectTerms></case>
+    <case id="partial-bad" req="RF-036" query="fendt entre 200">
+        <expectConcept kind="brand" value="FENDT" />
+        <expectNoError />
+    </case>
+    <case id="filter-empty" req="RF-005" query="trator acima de 5000 cv">
+        <expectEmpty />
+        <expectNoError />
+    </case>
+    <case id="ctx-compat" req="RF-049" query="implementos compativeis com este trator"><expectNoError /></case>
+    <case id="origin-dlc" req="RF-047" query="dlc pulverizador"><expectConcept kind="origin" value="dlc" /></case>
 </golden>

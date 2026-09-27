@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<numbers decimal="." thousands=",">
+    <multiplier word="k" factor="1000" />
+    <multiplier word="thousand" factor="1000" />
+    <multiplier word="million" factor="1000000" />
+    <spelled word="one" value="1" />
+    <spelled word="two" value="2" />
+    <spelled word="three" value="3" />
+    <spelled word="four" value="4" />
+    <spelled word="five" value="5" />
+    <spelled word="six" value="6" />
+    <spelled word="seven" value="7" />
+    <spelled word="eight" value="8" />
+    <spelled word="nine" value="9" />
+    <spelled word="ten" value="10" />
+    <spelled word="twenty" value="20" />
+    <spelled word="thirty" value="30" />
+    <spelled word="forty" value="40" />
+    <spelled word="fifty" value="50" />
+    <spelled word="hundred" value="100" />
+</numbers>

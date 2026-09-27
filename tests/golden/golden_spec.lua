@@ -24,7 +24,7 @@ for _, file in ipairs(FILES) do
                 local queryText = caseNode.attrs.query or ""
                 for _, fixtureProfile in ipairs(fixturesOf(caseNode)) do
                     it(string.format("%s [%s] query=%q", id, fixtureProfile, queryText), function()
-                        runner.runCase(caseNode, fixtureProfile)
+                        runner.runCase(caseNode, fixtureProfile, file.lang)
                     end)
                 end
             end

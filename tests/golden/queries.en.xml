@@ -7,4 +7,11 @@
     <case id="en-tratcor" req="RF-025" query="tratcor">
         <expectTop n="10" minHits="8" category="TRACTORS*" />
     </case>
+
+    <case id="en-over-hp" req="RF-026" query="over 200 hp"><expectConstraint spec="power" op="gt" min="149.1" /></case>
+    <case id="en-under-k" req="RF-026" query="under 150k"><expectConstraint spec="money" op="lt" max="150000" /></case>
+    <case id="en-between-hp" req="RF-026" query="between 200 and 300 hp">
+        <expectConstraint spec="power" op="between" min="149.1" max="223.7" />
+    </case>
+    <case id="en-thousands" req="RF-026" query="40,000 l"><expectConstraint spec="volume" op="between" min="38000" max="42000" /></case>
 </golden>

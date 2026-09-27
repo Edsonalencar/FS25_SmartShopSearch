@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<comparators>
+    <op id="gt">
+        <p>over</p>
+        <p>more than</p>
+        <p>above</p>
+        <p>greater than</p>
+        <p>&gt;</p>
+    </op>
+    <op id="gte">
+        <p>at least</p>
+        <p>from</p>
+        <p>&gt;=</p>
+    </op>
+    <op id="lt">
+        <p>under</p>
+        <p>below</p>
+        <p>less than</p>
+        <p>&lt;</p>
+    </op>
+    <op id="lte">
+        <p>up to</p>
+        <p>at most</p>
+        <p>&lt;=</p>
+    </op>
+    <op id="approx">
+        <p>about</p>
+        <p>approximately</p>
+        <p>around</p>
+        <p>~</p>
+    </op>
+    <range>
+        <p>between {a} and {b}</p>
+        <p>from {a} to {b}</p>
+        <p>{a} to {b}</p>
+        <p>{a}-{b}</p>
+    </range>
+</comparators>

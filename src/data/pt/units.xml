@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!-- Aliases localizados de unidade: apontam para o alias canônico usado em data/common/units.xml. -->
+<units lang="pt">
+    <unit alias="litro" canonical="l" />
+    <unit alias="litros" canonical="l" />
+    <unit alias="metro" canonical="m" />
+    <unit alias="metros" canonical="m" />
+    <unit alias="tonelada" canonical="t" />
+    <unit alias="toneladas" canonical="t" />
+    <unit alias="quilo" canonical="kg" />
+    <unit alias="quilos" canonical="kg" />
+    <unit alias="cavalo" canonical="cv" />
+    <unit alias="cavalos" canonical="cv" />
+    <unit alias="pes" canonical="ft" />
+    <unit alias="pe" canonical="ft" />
+    <unit alias="reais" canonical="r$" />
+    <unit alias="real" canonical="r$" />
+</units>

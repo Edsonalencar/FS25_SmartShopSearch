@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<context>
+    <compat>
+        <p>compatible with</p>
+        <p>fits</p>
+        <p>works with</p>
+        <p>for this</p>
+        <p>for the</p>
+    </compat>
+    <self>
+        <p>this</p>
+        <p>this tractor</p>
+        <p>selected</p>
+    </self>
+</context>

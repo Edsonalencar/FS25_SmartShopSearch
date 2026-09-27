@@ -65,4 +65,26 @@ function LinguisticData:context()
     return self:load("context")
 end
 
+--- data/common/units.xml (quantidades canônicas + sequências protegidas):
+--- não é por locale, então é carregado uma única vez sob o pseudo-locale
+--- "common" (mesma porta DataLoader, mesma estrutura de diretórios).
+---@return table|nil {quantities, protected}
+function LinguisticData:commonUnits()
+    if self.commonUnitsCache ~= nil then
+        return self.commonUnitsCache or nil
+    end
+    local ok, data = pcall(function()
+        return self.dataLoader:load("common", "units")
+    end)
+    if ok and data then
+        self.commonUnitsCache = data
+    else
+        self.commonUnitsCache = false
+        if self.logger then
+            self.logger:warning("data", "dado linguístico ausente: common/units")
+        end
+    end
+    return self.commonUnitsCache or nil
+end
+
 NS.app.LinguisticData = LinguisticData

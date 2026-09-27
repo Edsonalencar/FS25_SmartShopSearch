@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<units>
+    <quantity id="power" canonical="kw" specs="power neededPower">
+        <unit alias="kw" factor="1" />
+        <unit alias="cv" factor="0.7355" />
+        <unit alias="ps" factor="0.7355" />
+        <unit alias="hp" factor="0.7457" />
+    </quantity>
+    <quantity id="volume" canonical="l" specs="capacity">
+        <unit alias="l" factor="1" />
+        <unit alias="lt" factor="1" />
+        <unit alias="m3" factor="1000" />
+        <unit alias="gal" factor="3.785" />
+    </quantity>
+    <quantity id="length" canonical="m" specs="workingWidth">
+        <unit alias="m" factor="1" />
+        <unit alias="ft" factor="0.3048" />
+    </quantity>
+    <quantity id="speed" canonical="kmh" specs="maxSpeed">
+        <unit alias="kmh" factor="1" />
+        <unit alias="mph" factor="1.609" />
+    </quantity>
+    <quantity id="mass" canonical="kg" specs="weight">
+        <unit alias="kg" factor="1" />
+        <unit alias="t" factor="1000" />
+        <unit alias="ton" factor="1000" />
+    </quantity>
+    <quantity id="money" canonical="money" specs="price">
+        <unit alias="r$" factor="1" />
+        <unit alias="$" factor="1" />
+        <unit alias="€" factor="1" />
+    </quantity>
+    <protected from="km/h" to="kmh" />
+    <protected from="m³" to="m3" />
+    <protected from="r$" to=" r$ " />
+</units>

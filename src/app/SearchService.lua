@@ -1,11 +1,16 @@
 -- Orquestra o motor de busca (core/) sobre as portas injetadas (F2: texto,
--- índice, ranking. F3: fuzzy/alias. F4+: parser estruturado/filtros).
+-- índice, ranking. F3: fuzzy/alias. F4: parser estruturado/filtros).
 local NS = SmartShopSearch
-local Tokenizer = NS.core.Tokenizer
 local ExactMatcher = NS.core.ExactMatcher
 local FuzzyMatcher = NS.core.FuzzyMatcher
 local FieldMatcher = NS.core.FieldMatcher
 local AliasResolver = NS.core.AliasResolver
+local NumberParser = NS.core.NumberParser
+local UnitParser = NS.core.UnitParser
+local ComparatorParser = NS.core.ComparatorParser
+local ContextParser = NS.core.ContextParser
+local QueryParser = NS.core.QueryParser
+local FilterEngine = NS.core.FilterEngine
 local SearchScorer = NS.core.SearchScorer
 local Ranker = NS.core.Ranker
 local IdMatcher = NS.core.IdMatcher
@@ -24,7 +29,8 @@ function SearchService.new(deps)
         deps = deps,
         normalizer = deps.normalizer,
         weights = deps.weights or DefaultWeights,
-        aliasResolver = nil, -- construído sob demanda (memoização em self.deps.data)
+        queryParser = nil, -- construído sob demanda (memoização em self.deps.data)
+        commonUnits = nil,
     }, SearchService)
 end
 
@@ -37,22 +43,46 @@ function SearchService:ensureIndex(budgetSec)
     return self.deps.indexLifecycle:ensure(budgetSec)
 end
 
---- Constrói (e memoiza) o AliasResolver a partir de deps.data (LinguisticData).
---- Sem deps.data, a busca segue funcionando só por texto (sem conceitos).
-function SearchService:_aliasResolver()
-    if self.aliasResolver ~= nil then
-        return self.aliasResolver or nil
+--- Constrói (e memoiza) o QueryParser completo a partir de deps.data
+--- (LinguisticData): aliases, unidades/números/comparadores, contexto e
+--- stopwords. Sem deps.data, cai para um parser mínimo (só normaliza e
+--- tokeniza — todo token vira termo, como na F2).
+function SearchService:_queryParser()
+    if self.queryParser ~= nil then
+        return self.queryParser
     end
-    if self.deps.data then
-        self.aliasResolver = AliasResolver.new(self.normalizer, self.deps.data:aliases())
-    else
-        self.aliasResolver = false -- memoiza "sem resolver" para não tentar de novo
+    local data = self.deps.data
+    if not data then
+        self.queryParser = QueryParser.new({ normalizer = self.normalizer })
+        return self.queryParser
     end
-    return self.aliasResolver or nil
-end
 
-local function emptyQuery(text)
-    return { raw = text, terms = {}, concepts = {}, constraints = {}, context = nil, locale = "en", warnings = {} }
+    self.commonUnits = data:commonUnits()
+    local aliasResolver = AliasResolver.new(self.normalizer, data:aliases())
+    local numberParser = NumberParser.new(data:numbers())
+    local unitParser = UnitParser.new(self.commonUnits, data:units())
+    local comparatorParser = ComparatorParser.new(data:comparators(), numberParser, unitParser, function(s)
+        return self.normalizer:normalize(s)
+    end)
+    local contextParser = ContextParser.new(data:context(), function(s)
+        return self.normalizer:normalize(s)
+    end)
+    local stopwordSets = data:stopwords()
+    local stopwords = {}
+    for _, set in ipairs(stopwordSets) do
+        for word in pairs(set) do
+            stopwords[word] = true
+        end
+    end
+
+    self.queryParser = QueryParser.new({
+        normalizer = self.normalizer,
+        aliasResolver = aliasResolver,
+        comparatorParser = comparatorParser,
+        contextParser = contextParser,
+        stopwords = stopwords,
+    })
+    return self.queryParser
 end
 
 --- Itens que satisfazem um QueryConcept (categoria/marca/espécie/origem),
@@ -74,59 +104,21 @@ local function conceptItemIds(index, concept)
 end
 
 --- @param text string
---- @param ui table|nil  UiFilters (aplicado a partir da F4)
+--- @param ui table|nil  UiFilters
 --- @return SearchResult[] results
 --- @return Query query
 function SearchService:_searchInner(text, ui) -- luacheck: ignore 212
-    if type(text) ~= "string" then
-        return {}, emptyQuery(text)
-    end
-
     self:ensureIndex(nil)
     local index = self.deps.indexLifecycle and self.deps.indexLifecycle.index
 
-    local norm = self.normalizer:normalize(text)
-    if norm == "" then
-        return {}, emptyQuery(text) -- RF-005: consulta vazia/só espaços -> sem resultado, sem erro
-    end
-
-    local tokens = Tokenizer.tokenize(norm)
-    local query = emptyQuery(text)
+    local parser = self:_queryParser()
+    local query = parser:parse(text, self.deps.locale)
 
     if not index then
-        for _, tok in ipairs(tokens) do
-            query.terms[#query.terms + 1] = { text = tok.text, span = { tok.s, tok.e }, fuzzyMax = 0 }
-        end
         return {}, query
     end
-
-    local resolver = self:_aliasResolver()
-
-    -- Varredura esquerda->direita: cada posição vira um QueryConcept (alias,
-    -- possivelmente de frase) ou um QueryTerm (RF-034/036 simplificado; o
-    -- QueryParser completo, com números/unidades/comparadores, é da F4).
-    local i = 1
-    while i <= #tokens do
-        local resolved = resolver and resolver:resolveAt(tokens, i, true)
-        if resolved then
-            local parts = {}
-            for k = 0, resolved.consumed - 1 do
-                parts[#parts + 1] = tokens[i + k].text
-            end
-            query.concepts[#query.concepts + 1] = {
-                kind = resolved.kind,
-                value = resolved.id,
-                confidence = resolved.confidence,
-                span = resolved.span,
-                queryText = table.concat(parts, " "),
-                consumed = resolved.consumed,
-            }
-            i = i + resolved.consumed
-        else
-            local tok = tokens[i]
-            query.terms[#query.terms + 1] = { text = tok.text, span = { tok.s, tok.e }, fuzzyMax = 0 }
-            i = i + 1
-        end
+    if #query.terms == 0 and #query.concepts == 0 and #query.constraints == 0 then
+        return {}, query -- RF-005: consulta vazia/só espaços/só stopwords -> sem resultado, sem erro
     end
 
     for _, term in ipairs(query.terms) do
@@ -157,7 +149,7 @@ function SearchService:_searchInner(text, ui) -- luacheck: ignore 212
         local reason = Models.reason(
             "alias",
             concept.kind,
-            query.raw,
+            concept.queryText,
             concept.value,
             "confiança " .. tostring(concept.confidence),
             weight
@@ -195,12 +187,28 @@ function SearchService:_searchInner(text, ui) -- luacheck: ignore 212
         end
     end
 
+    -- Filtros e constraints (F4): eliminatórios; conceitos textuais não são.
+    local allowed, constraintReasons = FilterEngine.apply(index, query, ui, self.commonUnits)
+
     local candidateIds = {}
-    for itemId in pairs(termHits) do
-        candidateIds[itemId] = true
-    end
-    for itemId in pairs(conceptHitsByItem) do
-        candidateIds[itemId] = true
+    if #query.terms > 0 or #query.concepts > 0 then
+        for itemId in pairs(termHits) do
+            candidateIds[itemId] = true
+        end
+        for itemId in pairs(conceptHitsByItem) do
+            candidateIds[itemId] = true
+        end
+        if allowed then
+            for itemId in pairs(candidateIds) do
+                if not allowed[itemId] then
+                    candidateIds[itemId] = nil
+                end
+            end
+        end
+    elseif allowed then
+        candidateIds = allowed
+    else
+        candidateIds = {} -- sem termos/conceitos/constraints (não deveria ocorrer; RF-005 já tratou vazio)
     end
 
     local maxResults = self.deps.settings and self.deps.settings:get("search#maxResults") or 300
@@ -210,6 +218,9 @@ function SearchService:_searchInner(text, ui) -- luacheck: ignore 212
         local item = index.items[itemId]
         local score, coverage, reasons =
             SearchScorer.score(query, item, termHits[itemId] or {}, conceptHitsByItem[itemId] or {}, self.weights)
+        for _, r in ipairs(constraintReasons[itemId] or {}) do
+            reasons[#reasons + 1] = r
+        end
         results[#results + 1] = Models.result(item, score, coverage, reasons)
     end
 

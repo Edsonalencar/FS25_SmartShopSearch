@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<stopwords lang="fr">
+    <w>le</w>
+    <w>la</w>
+    <w>les</w>
+    <w>de</w>
+    <w>du</w>
+    <w>des</w>
+    <w>et</w>
+    <w>avec</w>
+    <w>pour</w>
+    <w>un</w>
+    <w>une</w>
+</stopwords>

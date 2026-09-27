@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<comparators>
+    <op id="gt">
+        <p>acima de</p>
+        <p>mais de</p>
+        <p>maior que</p>
+        <p>mais que</p>
+        <p>superior a</p>
+        <p>&gt;</p>
+    </op>
+    <op id="gte">
+        <p>a partir de</p>
+        <p>no minimo</p>
+        <p>pelo menos</p>
+        <p>&gt;=</p>
+    </op>
+    <op id="lt">
+        <p>abaixo de</p>
+        <p>menos de</p>
+        <p>menor que</p>
+        <p>inferior a</p>
+        <p>&lt;</p>
+    </op>
+    <op id="lte">
+        <p>ate</p>
+        <p>no maximo</p>
+        <p>&lt;=</p>
+    </op>
+    <op id="approx">
+        <p>cerca de</p>
+        <p>aproximadamente</p>
+        <p>uns</p>
+        <p>~</p>
+    </op>
+    <range>
+        <p>entre {a} e {b}</p>
+        <p>de {a} a {b}</p>
+        <p>{a} a {b}</p>
+        <p>{a}-{b}</p>
+    </range>
+</comparators>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<stopwords lang="pt">
+    <w>de</w>
+    <w>do</w>
+    <w>da</w>
+    <w>dos</w>
+    <w>das</w>
+    <w>e</w>
+    <w>com</w>
+    <w>para</w>
+    <w>por</w>
+    <w>o</w>
+    <w>a</w>
+    <w>os</w>
+    <w>as</w>
+    <w>um</w>
+    <w>uma</w>
+    <w>em</w>
+    <w>no</w>
+    <w>na</w>
+    <w>que</w>
+</stopwords>

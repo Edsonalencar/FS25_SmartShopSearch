@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<comparators>
+    <op id="gt">
+        <p>plus de</p>
+        <p>au-dessus de</p>
+        <p>&gt;</p>
+    </op>
+    <op id="lt">
+        <p>moins de</p>
+        <p>en dessous de</p>
+        <p>&lt;</p>
+    </op>
+    <range>
+        <p>entre {a} et {b}</p>
+        <p>{a}-{b}</p>
+    </range>
+</comparators>

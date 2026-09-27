@@ -12,30 +12,43 @@ local FileDataLoader = require("tests.stubs.FileDataLoader")
 
 local M = {}
 
--- Config mínima do normalizador de texto usada nos testes até a F4 criar
--- src/data/common/units.xml (nesse ponto, o runner passa a lê-lo).
-local DEFAULT_NORMALIZER_CFG = {
-    protected = { { "km/h", "kmh" }, { "m³", "m3" }, { "r$", " r$ " } },
-    currency = { "r$", "$", "€", "£" },
-}
+-- Currency symbols isolados por espaço (L8); as sequências protegidas
+-- (km/h, m³, r$) vêm de data/common/units.xml, lido abaixo por locale.
+local CURRENCY_SYMBOLS = { "r$", "$", "€", "£" }
 
 local serviceCache = {}
 
+--- @param primaryLocale string  "pt" (padrão, idioma do jogo simulado) ou "en"
+local function localesFor(primaryLocale)
+    if primaryLocale == "en" then
+        return { "en", "pt" }
+    end
+    return { "pt", "en" }
+end
+
 --- Constrói (ou reaproveita) um SearchService sobre um perfil de fixture.
 --- @param fixtureProfile string  ex. "synthetic", "base"
-function M.serviceFor(fixtureProfile)
-    if serviceCache[fixtureProfile] then
-        return serviceCache[fixtureProfile]
+--- @param primaryLocale string|nil  "pt" (padrão) ou "en" — define a ordem de
+--- locales (decimal/milhar do NumberParser vêm do primeiro) e cacheia por par.
+function M.serviceFor(fixtureProfile, primaryLocale)
+    primaryLocale = primaryLocale or "pt"
+    local cacheKey = fixtureProfile .. "|" .. primaryLocale
+    if serviceCache[cacheKey] then
+        return serviceCache[cacheKey]
     end
     local NS = SmartShopSearch
     local path = "tests/fixtures/catalog/" .. fixtureProfile .. ".xml"
-    local normalizer = TextNormalizer.new(DEFAULT_NORMALIZER_CFG)
+    local loader = FileDataLoader.new("src/data")
+    local logger = MemoryLogger.new()
+    local data = NS.app.LinguisticData.new(loader, localesFor(primaryLocale), logger)
+    local commonUnits = data:commonUnits()
+    local normalizer =
+        TextNormalizer.new({ protected = (commonUnits and commonUnits.protected) or {}, currency = CURRENCY_SYMBOLS })
     local catalog = FixtureCatalogSource.new(path)
     local builder = IndexBuilder.new(normalizer)
     local diagnostics = NS.app.Diagnostics.new()
     local lifecycle =
         NS.app.IndexLifecycle.new(diagnostics, { catalog = catalog, builder = builder, clock = FakeClock.new() })
-    local logger = MemoryLogger.new()
     local settings = {
         get = function(_, key)
             if key == "search#maxResults" then
@@ -44,7 +57,6 @@ function M.serviceFor(fixtureProfile)
             return nil
         end,
     }
-    local data = NS.app.LinguisticData.new(FileDataLoader.new("src/data"), { "pt", "en" }, logger)
     local svc = NS.app.SearchService.new({
         indexLifecycle = lifecycle,
         normalizer = normalizer,
@@ -53,7 +65,7 @@ function M.serviceFor(fixtureProfile)
         data = data,
     })
     local entry = { service = svc, logger = logger, diagnostics = diagnostics, lifecycle = lifecycle }
-    serviceCache[fixtureProfile] = entry
+    serviceCache[cacheKey] = entry
     return entry
 end
 
@@ -251,10 +263,11 @@ local function evalExpectation(node, ctx)
 end
 
 --- Roda um único <case>; retorna métricas simples do caso (para agregação).
-function M.runCase(caseNode, fixtureProfile)
-    local entry = M.serviceFor(fixtureProfile)
+--- @param primaryLocale string|nil  "pt" (padrão) ou "en" (tests/golden/queries.en.xml)
+function M.runCase(caseNode, fixtureProfile, primaryLocale)
+    local entry = M.serviceFor(fixtureProfile, primaryLocale)
     local query = caseNode.attrs.query
-    local ui = nil -- filtros de UI entram na F4
+    local ui = nil -- filtros de UI entram na F7 (painel); FilterEngine já aplica constraints
     local results, parsedQuery = entry.service:search(query, ui)
     local ctx = {
         results = results,

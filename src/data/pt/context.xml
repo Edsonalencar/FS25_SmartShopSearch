@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<context>
+    <compat>
+        <p>compativel com</p>
+        <p>compativeis com</p>
+        <p>serve no</p>
+        <p>serve na</p>
+        <p>para o</p>
+        <p>para a</p>
+    </compat>
+    <self>
+        <p>este</p>
+        <p>esta</p>
+        <p>esse</p>
+        <p>essa</p>
+        <p>este trator</p>
+        <p>selecionado</p>
+    </self>
+</context>

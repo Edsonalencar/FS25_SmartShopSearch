@@ -3,6 +3,7 @@
 -- imprime a Query (AST), o top 10, os scores e os `reasons`.
 -- Uso: lua tools/query.lua "trtor jon dere entre 200 e 300 cv por menos de 150 mil"
 --      lua tools/query.lua "john 6r" tests/fixtures/catalog/synthetic.xml
+--      lua tools/query.lua "over 200 hp" tests/fixtures/catalog/synthetic.xml en
 package.path = "./?.lua;" .. package.path
 
 require("tests.support.load").load()
@@ -13,14 +14,18 @@ local FileDataLoader = require("tests.stubs.FileDataLoader")
 
 local queryText = arg[1]
 local fixturePath = arg[2] or "tests/fixtures/catalog/synthetic.xml"
+local primaryLocale = arg[3] or "pt"
 
 if not queryText then
-    print('Uso: lua tools/query.lua "<consulta>" [fixture.xml]')
+    print('Uso: lua tools/query.lua "<consulta>" [fixture.xml] [locale]')
     os.exit(1)
 end
 
+local locales = (primaryLocale == "en") and { "en", "pt" } or { "pt", "en" }
+local data = NS.app.LinguisticData.new(FileDataLoader.new("src/data"), locales)
+local commonUnits = data:commonUnits()
 local normalizer = NS.core.TextNormalizer.new({
-    protected = { { "km/h", "kmh" }, { "m³", "m3" }, { "r$", " r$ " } },
+    protected = (commonUnits and commonUnits.protected) or {},
     currency = { "r$", "$", "€", "£" },
 })
 local catalog = FixtureCatalogSource.new(fixturePath)
@@ -35,7 +40,6 @@ local settings = {
         end
     end,
 }
-local data = NS.app.LinguisticData.new(FileDataLoader.new("src/data"), { "pt", "en" })
 local svc =
     NS.app.SearchService.new({ indexLifecycle = lifecycle, normalizer = normalizer, settings = settings, data = data })
 

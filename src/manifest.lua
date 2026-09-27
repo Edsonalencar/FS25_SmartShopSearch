@@ -18,7 +18,13 @@ SmartShopSearch.manifest = {
     "core/index/TrigramIndex.lua",
     "core/match/FuzzyMatcher.lua",
     "core/lang/AliasResolver.lua",
-    -- F4+: core/lang/*Parser.lua, core/rank/FilterEngine.lua
+    "core/index/SpecRegistry.lua",
+    "core/lang/NumberParser.lua",
+    "core/lang/UnitParser.lua",
+    "core/lang/ComparatorParser.lua",
+    "core/lang/ContextParser.lua",
+    "core/lang/QueryParser.lua",
+    "core/rank/FilterEngine.lua",
     -- F8 : core/compat/CompatibilityResolver.lua
     "app/SafeCall.lua",
     "app/StateMachine.lua",

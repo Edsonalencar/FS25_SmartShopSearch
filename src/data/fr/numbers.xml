@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<numbers decimal="," thousands=" ">
+    <multiplier word="mille" factor="1000" />
+    <multiplier word="k" factor="1000" />
+    <multiplier word="million" factor="1000000" />
+</numbers>

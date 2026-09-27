@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<units lang="de">
+    <unit alias="liter" canonical="l" />
+    <unit alias="meter" canonical="m" />
+    <unit alias="tonne" canonical="t" />
+    <unit alias="tonnen" canonical="t" />
+    <unit alias="pferdestaerken" canonical="ps" />
+</units>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<units lang="en">
+    <unit alias="liter" canonical="l" />
+    <unit alias="liters" canonical="l" />
+    <unit alias="litre" canonical="l" />
+    <unit alias="litres" canonical="l" />
+    <unit alias="meter" canonical="m" />
+    <unit alias="meters" canonical="m" />
+    <unit alias="metre" canonical="m" />
+    <unit alias="metres" canonical="m" />
+    <unit alias="ton" canonical="t" />
+    <unit alias="tons" canonical="t" />
+    <unit alias="tonne" canonical="t" />
+    <unit alias="tonnes" canonical="t" />
+    <unit alias="feet" canonical="ft" />
+    <unit alias="foot" canonical="ft" />
+    <unit alias="horsepower" canonical="hp" />
+</units>

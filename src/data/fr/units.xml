@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<units lang="fr">
+    <unit alias="litre" canonical="l" />
+    <unit alias="litres" canonical="l" />
+    <unit alias="metre" canonical="m" />
+    <unit alias="metres" canonical="m" />
+    <unit alias="tonne" canonical="t" />
+    <unit alias="tonnes" canonical="t" />
+    <unit alias="chevaux" canonical="cv" />
+</units>

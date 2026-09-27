@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<stopwords lang="de">
+    <w>der</w>
+    <w>die</w>
+    <w>das</w>
+    <w>und</w>
+    <w>mit</w>
+    <w>fuer</w>
+    <w>von</w>
+    <w>ein</w>
+    <w>eine</w>
+</stopwords>
