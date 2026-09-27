@@ -88,7 +88,7 @@ function ComparatorParser.new(dataList, numberParser, unitParser, normalizeFn)
 end
 
 --- Tenta casar uma unidade (ou moeda) a partir de `pos`; devolve
---- {quantity, factor, consumed} ou nil.
+--- {quantity, factor, unit, consumed} ou nil (`unit` nil para moeda).
 function ComparatorParser:_tryUnit(tokens, pos)
     local moneyMatch = self.unitParser:parseMoneyAt(tokens, pos)
     if moneyMatch then
@@ -125,10 +125,10 @@ function ComparatorParser:_tryRange(pattern, tokens, i)
         return nil
     end
 
-    local quantity, factor = nil, 1
+    local quantity, factor, unit = nil, 1, nil
     local unitMatch = self:_tryUnit(tokens, pos)
     if unitMatch then
-        quantity, factor = unitMatch.quantity, unitMatch.factor
+        quantity, factor, unit = unitMatch.quantity, unitMatch.factor, unitMatch.unit
         pos = pos + unitMatch.consumed
     end
 
@@ -141,6 +141,8 @@ function ComparatorParser:_tryRange(pattern, tokens, i)
         op = "between",
         min = min,
         max = max,
+        unit = unit,
+        factor = factor,
         consumed = pos - i,
         usedMultiplier = usedMultiplier,
         rawMagnitude = math.max(math.abs(aVal), math.abs(bVal)),
@@ -157,7 +159,7 @@ function ComparatorParser:_tryOp(entry, tokens, i)
         pos = pos + 1
     end
 
-    local quantity, factor = nil, 1
+    local quantity, factor, unit = nil, 1, nil
     local moneyMatch = self.unitParser:parseMoneyAt(tokens, pos)
     if moneyMatch then
         quantity, factor = "money", 1
@@ -173,7 +175,7 @@ function ComparatorParser:_tryOp(entry, tokens, i)
     if not quantity then
         local unitMatch = self.unitParser:parseAt(tokens, pos)
         if unitMatch then
-            quantity, factor = unitMatch.quantity, unitMatch.factor
+            quantity, factor, unit = unitMatch.quantity, unitMatch.factor, unitMatch.unit
             pos = pos + unitMatch.consumed
         end
     end
@@ -193,6 +195,8 @@ function ComparatorParser:_tryOp(entry, tokens, i)
         op = entry.op,
         min = min,
         max = max,
+        unit = unit,
+        factor = factor,
         consumed = pos - i,
         usedMultiplier = numResult.usedMultiplier,
         rawMagnitude = math.abs(numResult.value),
@@ -205,7 +209,7 @@ end
 --- @return table|nil
 function ComparatorParser:_tryStandalone(tokens, i)
     local pos = i
-    local quantity, factor = nil, 1
+    local quantity, factor, unit = nil, 1, nil
     local moneyMatch = self.unitParser:parseMoneyAt(tokens, pos)
     if moneyMatch then
         quantity, factor = "money", 1
@@ -223,7 +227,7 @@ function ComparatorParser:_tryStandalone(tokens, i)
         if not unitMatch then
             return nil -- número isolado sem unidade/moeda não é constraint aqui
         end
-        quantity, factor = unitMatch.quantity, unitMatch.factor
+        quantity, factor, unit = unitMatch.quantity, unitMatch.factor, unitMatch.unit
         pos = pos + unitMatch.consumed
     end
 
@@ -233,6 +237,8 @@ function ComparatorParser:_tryStandalone(tokens, i)
         op = "between",
         min = value * 0.95,
         max = value * 1.05,
+        unit = unit,
+        factor = factor,
         consumed = pos - i,
         usedMultiplier = numResult.usedMultiplier,
         rawMagnitude = math.abs(numResult.value),

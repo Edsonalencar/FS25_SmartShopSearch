@@ -208,13 +208,72 @@ function SearchService:_searchCompat(index, query)
     return Ranker.rank(results, self.weights, maxResults)
 end
 
+--- Fuzzy de frase contra textos de itens (ADR-14): quando algum termo não
+--- teve hit exato, tenta casar janelas de 2–3 termos com as frases
+--- multi-palavra do índice (ex. "deuts far" → "deutz fahr"). O hit vale para
+--- todos os termos da janela, no campo de origem da frase.
+function SearchService:_phraseHits(index, query, termHits, termMatched, allowed)
+    local needsHelp, anyNeeds = {}, false
+    for i2 in ipairs(query.terms) do
+        if not termMatched[i2] then
+            needsHelp[i2] = true
+            anyNeeds = true
+        end
+    end
+    if not anyNeeds or #query.terms < 2 then
+        return
+    end
+    local W = self.weights
+    for _, pm in ipairs(FuzzyMatcher.matchItemPhrases(index, query.terms, needsHelp)) do
+        local kind = FuzzyMatcher.kindForDist(pm.dist)
+        local parts = {}
+        for k = pm.first, pm.first + pm.consumed - 1 do
+            parts[#parts + 1] = query.terms[k].text
+        end
+        local phraseText = table.concat(parts, " ")
+        for itemId, fields in pairs(FuzzyMatcher.itemsWithPhrase(index, pm.matched)) do
+            if not allowed or allowed[itemId] then
+                local bestField, bestW = nil, -1
+                for field in pairs(fields) do
+                    local w = W.fields[field] or W.fields.spec
+                    if w > bestW then
+                        bestField, bestW = field, w
+                    end
+                end
+                local value = bestW * (W.types[kind] or W.types.exact) * pm.sim
+                local reason =
+                    Models.reason(kind, bestField, phraseText, pm.matched, "frase, distância " .. pm.dist, value)
+                local hit =
+                    { value = value, reason = reason, field = bestField, kind = kind, sim = pm.sim, dist = pm.dist }
+                hit.fuzzyMax = pm.maxDist
+                for k = pm.first, pm.first + pm.consumed - 1 do
+                    local byTerm = termHits[itemId]
+                    if not byTerm then
+                        byTerm = {}
+                        termHits[itemId] = byTerm
+                    end
+                    if not byTerm[k] or byTerm[k].value < value then
+                        byTerm[k] = hit
+                    end
+                end
+            end
+        end
+    end
+end
+
 --- @param text string
 --- @param ui table|nil  UiFilters
 --- @return SearchResult[] results
 --- @return Query query
 function SearchService:_searchInner(text, ui) -- luacheck: ignore 212
-    self:ensureIndex(nil)
-    local index = self.deps.indexLifecycle and self.deps.indexLifecycle.index
+    -- Só constrói se ainda não há índice: revalidar a assinatura relê o
+    -- catálogo inteiro, e isso já acontece na abertura da loja (ADR-04), não
+    -- a cada busca.
+    local lifecycle = self.deps.indexLifecycle
+    if not (lifecycle and lifecycle.index) then
+        self:ensureIndex(nil)
+    end
+    local index = lifecycle and lifecycle.index
 
     local parser = self:_queryParser()
     local query = parser:parse(text, self.deps.locale)
@@ -234,22 +293,35 @@ function SearchService:_searchInner(text, ui) -- luacheck: ignore 212
         term.idf = index.idf[term.text] or 1
     end
 
+    -- Filtros e constraints (F4): eliminatórios; conceitos textuais não são.
+    -- Aplicados antes do matching para não montar hits/motivos de itens que
+    -- os filtros já eliminaram (PRD §15: sem alocação por item descartado).
+    local allowed = FilterEngine.apply(index, query, ui, self.commonUnits)
+
     -- termHits[itemId][termIndex] = melhor (campo, tipo) para aquele termo naquele item.
     -- Fuzzy só roda quando o exato/prefixo não achou nada para o termo (economia).
     local termHits = {}
+    local termMatched = {}
     for i2, term in ipairs(query.terms) do
         local candidates = ExactMatcher.match(index, term.text)
         if next(candidates) == nil then
             candidates = FuzzyMatcher.matchToken(index, term.text)
         end
+        -- "casou de verdade" = o token existe no vocabulário (hit exato);
+        -- prefixo/fuzzy isolados ainda podem ser melhorados pelo fuzzy de frase.
+        termMatched[i2] = index:postingsFor(term.text) ~= nil
         for itemId in pairs(candidates) do
-            local hit = FieldMatcher.best(candidates, itemId, self.weights, term.text)
-            if hit then
-                termHits[itemId] = termHits[itemId] or {}
-                termHits[itemId][i2] = hit
+            if not allowed or allowed[itemId] then
+                local hit = FieldMatcher.best(candidates, itemId, self.weights, term.text)
+                if hit then
+                    termHits[itemId] = termHits[itemId] or {}
+                    termHits[itemId][i2] = hit
+                end
             end
         end
     end
+
+    self:_phraseHits(index, query, termHits, termMatched, allowed)
 
     -- conceptHitsByItem[itemId][concept] = MatchReason (RF-051)
     local conceptHitsByItem = {}
@@ -265,8 +337,10 @@ function SearchService:_searchInner(text, ui) -- luacheck: ignore 212
         )
         local facetIds = conceptItemIds(index, concept)
         for itemId in pairs(facetIds) do
-            conceptHitsByItem[itemId] = conceptHitsByItem[itemId] or {}
-            conceptHitsByItem[itemId][concept] = reason
+            if not allowed or allowed[itemId] then
+                conceptHitsByItem[itemId] = conceptHitsByItem[itemId] or {}
+                conceptHitsByItem[itemId][concept] = reason
+            end
         end
 
         -- Bônus (AC-RNK-01): um item que NÃO satisfaz o facet do conceito
@@ -285,7 +359,7 @@ function SearchService:_searchInner(text, ui) -- luacheck: ignore 212
             -- coexistem com marcas reais que também casam por exato.
             local textCandidates = FuzzyMatcher.matchToken(index, concept.queryText)
             for itemId in pairs(textCandidates) do
-                if not facetIds[itemId] then
+                if not facetIds[itemId] and (not allowed or allowed[itemId]) then
                     local hit = FieldMatcher.best(textCandidates, itemId, self.weights, concept.queryText)
                     if hit then
                         conceptHitsByItem[itemId] = conceptHitsByItem[itemId] or {}
@@ -295,9 +369,6 @@ function SearchService:_searchInner(text, ui) -- luacheck: ignore 212
             end
         end
     end
-
-    -- Filtros e constraints (F4): eliminatórios; conceitos textuais não são.
-    local allowed, constraintReasons = FilterEngine.apply(index, query, ui, self.commonUnits)
 
     local candidateIds = {}
     if #query.terms > 0 or #query.concepts > 0 then
@@ -327,13 +398,20 @@ function SearchService:_searchInner(text, ui) -- luacheck: ignore 212
         local item = index.items[itemId]
         local score, coverage, reasons =
             SearchScorer.score(query, item, termHits[itemId] or {}, conceptHitsByItem[itemId] or {}, self.weights)
-        for _, r in ipairs(constraintReasons[itemId] or {}) do
-            reasons[#reasons + 1] = r
-        end
         results[#results + 1] = Models.result(item, score, coverage, reasons)
     end
 
-    return Ranker.rank(results, self.weights, maxResults), query
+    -- Motivos de constraint (peso 0, só explicação) só para o que sobrou do
+    -- corte do Ranker, não para todos os itens aprovados pelos filtros.
+    local ranked = Ranker.rank(results, self.weights, maxResults)
+    if #query.constraints > 0 then
+        for _, r in ipairs(ranked) do
+            for _, reason in ipairs(FilterEngine.reasonsFor(r.item, query, self.commonUnits)) do
+                r.reasons[#r.reasons + 1] = reason
+            end
+        end
+    end
+    return ranked, query
 end
 
 ---@param text string

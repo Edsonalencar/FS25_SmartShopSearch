@@ -8,10 +8,10 @@ UnitParser.__index = UnitParser
 ---@param commonUnits {quantities: table[], protected: table[]}|nil  data/common/units.xml já parseado
 ---@param localizedDataList table[]  lista de {units: {alias, canonical}[]} por locale
 function UnitParser.new(commonUnits, localizedDataList)
-    local byAlias = {} -- alias -> {quantity, factor, canonical}
+    local byAlias = {} -- alias -> {quantity, factor, canonical, alias}
     for _, q in ipairs((commonUnits and commonUnits.quantities) or {}) do
         for _, u in ipairs(q.units) do
-            byAlias[u.alias] = { quantity = q.id, factor = u.factor, canonical = q.canonical }
+            byAlias[u.alias] = { quantity = q.id, factor = u.factor, canonical = q.canonical, alias = u.alias }
         end
     end
     local localToCanonical = {}
@@ -26,7 +26,7 @@ function UnitParser.new(commonUnits, localizedDataList)
 end
 
 --- @param word string  já normalizado
---- @return {quantity:string, factor:number, canonical:string}|nil
+--- @return {quantity:string, factor:number, canonical:string, alias:string}|nil
 function UnitParser:resolve(word)
     local info = self.byAlias[word]
     if info then
@@ -41,7 +41,10 @@ end
 
 --- @param tokens {text:string}[]
 --- @param i integer
---- @return {quantity:string, factor:number, consumed:integer}|nil
+--- `unit` é o alias comum da unidade digitada (ex. "cv", também para um
+--- alias localizado como "cavalos"), usado para exibir o valor do item na
+--- unidade da consulta (MatchReason de constraint).
+--- @return {quantity:string, factor:number, unit:string, consumed:integer}|nil
 function UnitParser:parseAt(tokens, i)
     if not tokens[i] then
         return nil
@@ -50,12 +53,12 @@ function UnitParser:parseAt(tokens, i)
         local phrase = tokens[i].text .. " " .. tokens[i + 1].text
         local info = self:resolve(phrase)
         if info then
-            return { quantity = info.quantity, factor = info.factor, consumed = 2 }
+            return { quantity = info.quantity, factor = info.factor, unit = info.alias, consumed = 2 }
         end
     end
     local info = self:resolve(tokens[i].text)
     if info then
-        return { quantity = info.quantity, factor = info.factor, consumed = 1 }
+        return { quantity = info.quantity, factor = info.factor, unit = info.alias, consumed = 1 }
     end
     return nil
 end

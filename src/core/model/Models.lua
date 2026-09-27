@@ -27,9 +27,8 @@ local Models = {}
 ---@field tokens string[] -- tokens normalizados
 
 ---@class SpecValue
----@field value number   -- sempre na unidade canônica (§6.3 PRD)
----@field unit string    -- "kw", "l", "m", "kmh", "kg", "money"
----@field source string  -- de onde veio (diagnóstico)
+---@field value number   -- sempre na unidade canônica (§6.3 PRD; unidade em data/common/units.xml)
+---@field source "secondary"|nil  -- nil = fonte primária (storeItem.specs); "secondary" = XML do item
 
 ---@class IndexedItem
 ---@field id integer              -- posição estável no índice
@@ -42,7 +41,7 @@ local Models = {}
 ---@field origin "base"|"dlc"|"mod"
 ---@field brandId string|nil
 ---@field categoryIdInternal string|nil
----@field phrases string[]|nil    -- frases normalizadas multi-palavra (F3, fuzzy de frase)
+-- (frases multi-palavra de brand/category/mod ficam no índice: SearchIndex.phrases)
 ---@field compat CompatInfo|nil   -- preenchido sob demanda (F8)
 
 ---@class QueryTerm
@@ -61,6 +60,8 @@ local Models = {}
 ---@field op "gt"|"gte"|"lt"|"lte"|"eq"|"between"|"approx"
 ---@field min number|nil   -- unidade canônica
 ---@field max number|nil
+---@field unit string|nil  -- alias da unidade digitada (ex. "cv"); nil sem unidade/moeda
+---@field factor number|nil -- fator unidade digitada → canônica (ex. 0.7355 para cv)
 ---@field span integer[]
 
 ---@class QueryContext

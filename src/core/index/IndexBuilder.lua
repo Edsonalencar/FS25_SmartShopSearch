@@ -40,7 +40,12 @@ function IndexBuilder.new(normalizer, opts)
     }, IndexBuilder)
 end
 
-local function buildField(self, raw, source, altSource)
+-- Campos cujo texto se repete muito entre itens (marca, categoria, mod…):
+-- o IndexedField é compartilhado entre os itens com o mesmo texto durante um
+-- build (RNF-003, memória). Os campos são somente leitura depois do build.
+local SHARED_FIELDS = { brand = true, category = true, mod = true, author = true, dlc = true }
+
+local function buildField(self, raw, source, altSource, cache)
     local text = raw[source]
     if text == nil or text == "" then
         text = altSource and raw[altSource] or nil
@@ -48,7 +53,22 @@ local function buildField(self, raw, source, altSource)
     if text == nil or text == "" then
         return nil
     end
-    local norm = self.normalizer:normalize(tostring(text))
+    text = tostring(text)
+    if cache then
+        local cached = cache[text]
+        if cached ~= nil then
+            return cached or nil
+        end
+    end
+    local field = self:_makeField(text)
+    if cache then
+        cache[text] = field or false
+    end
+    return field
+end
+
+function IndexBuilder:_makeField(text)
+    local norm = self.normalizer:normalize(text)
     if norm == "" then
         return nil
     end
@@ -56,7 +76,7 @@ local function buildField(self, raw, source, altSource)
     for _, tok in ipairs(Tokenizer.tokenize(norm)) do
         tokens[#tokens + 1] = tok.text
     end
-    return { raw = tostring(text), norm = norm, tokens = tokens }
+    return { raw = text, norm = norm, tokens = tokens }
 end
 
 local function addFacet(index, facetName, key, itemId)
@@ -76,11 +96,13 @@ local function addFacet(index, facetName, key, itemId)
     set[itemId] = true
 end
 
-local function addNumeric(index, specId, value, itemId)
-    local list = index.numeric[specId]
+-- Durante o build, as faixas numéricas acumulam pares {value, id} em
+-- `state.numericPairs`; o `finish` ordena e converte para arrays paralelos.
+local function addNumeric(state, specId, value, itemId)
+    local list = state.numericPairs[specId]
     if not list then
         list = {}
-        index.numeric[specId] = list
+        state.numericPairs[specId] = list
     end
     list[#list + 1] = { value = value, id = itemId }
 end
@@ -90,7 +112,7 @@ end
 --- descartados não podem deixar postings/facets órfãs sob um id que nunca
 --- entra em `index.items`, senão o próximo item reaproveitaria o mesmo id).
 --- @return IndexedItem|nil item, string|nil reason, table skippedCounts
-local function extractItem(self, raw)
+local function extractItem(self, raw, fieldCache)
     local skippedCounts = {}
     if type(raw.xmlFilename) ~= "string" or raw.xmlFilename == "" then
         return nil, "no-id", skippedCounts
@@ -106,11 +128,10 @@ local function extractItem(self, raw)
         fields = {},
         specs = {},
         price = nil,
-        phrases = {},
     }
 
     for _, def in ipairs(TEXT_FIELDS) do
-        local field = buildField(self, raw, def.source, def.altSource)
+        local field = buildField(self, raw, def.source, def.altSource, SHARED_FIELDS[def.field] and fieldCache or nil)
         if field then
             item.fields[def.field] = field
         end
@@ -118,14 +139,6 @@ local function extractItem(self, raw)
 
     -- RF-062: item sem NENHUM campo textual (nem sequer nome) ainda é
     -- indexado (AC-RES-02) — apenas fica pesquisável só por facet/spec.
-
-    -- F3: frases multi-palavra (brand/category/mod) para fuzzy de frase (ADR-14).
-    for _, fieldName in ipairs({ "brand", "category", "mod" }) do
-        local field = item.fields[fieldName]
-        if field and #field.tokens >= 2 then
-            item.phrases[#item.phrases + 1] = field.norm
-        end
-    end
 
     if raw.price ~= nil then
         if isFiniteNonNegativeNumber(raw.price) then
@@ -143,7 +156,10 @@ local function extractItem(self, raw)
             value = tonumber(spec.valueRaw)
         end
         if isFiniteNonNegativeNumber(value) then
-            item.specs[specId] = { value = value, unit = spec.unit, source = "primary" }
+            -- Só o valor (já canônico): `unit` e `source` não são lidos por
+            -- ninguém e custariam ~120 B por spec (RNF-003). `source` só
+            -- aparece nas specs secundárias (IndexBuilder.applySecondary).
+            item.specs[specId] = { value = value }
         else
             skippedCounts["invalid-spec:" .. specId] = (skippedCounts["invalid-spec:" .. specId] or 0) + 1
         end
@@ -154,18 +170,30 @@ end
 
 --- Registra um IndexedItem já construído no índice, sob `itemId` (a posição
 --- final em `index.items`): postings, facets e faixas numéricas.
-local function registerItem(index, item, itemId)
+-- F3: frases multi-palavra destes campos entram no fuzzy de frase (ADR-14).
+local PHRASE_FIELDS = { brand = true, category = true, mod = true }
+
+local function registerItem(state, item, itemId)
+    local index = state.index
     item.id = itemId
     for field, fieldData in pairs(item.fields) do
         for _, tok in ipairs(fieldData.tokens) do
             index:addPosting(tok, itemId, field)
         end
+        if PHRASE_FIELDS[field] and #fieldData.tokens >= 2 then
+            local fieldsOfPhrase = index.phrases[fieldData.norm]
+            if not fieldsOfPhrase then
+                fieldsOfPhrase = {}
+                index.phrases[fieldData.norm] = fieldsOfPhrase
+            end
+            fieldsOfPhrase[field] = true
+        end
     end
     if item.price ~= nil then
-        addNumeric(index, "price", item.price, itemId)
+        addNumeric(state, "price", item.price, itemId)
     end
     for specId, spec in pairs(item.specs) do
-        addNumeric(index, specId, spec.value, itemId)
+        addNumeric(state, specId, spec.value, itemId)
     end
     addFacet(index, "brand", item.brandId, itemId)
     addFacet(index, "category", item.categoryIdInternal, itemId)
@@ -182,6 +210,8 @@ function IndexBuilder:begin(rawItems)
         index = SearchIndex.new(),
         skipped = {},
         builder = self,
+        fieldCache = {},
+        numericPairs = {},
     }
 end
 
@@ -198,11 +228,11 @@ function IndexBuilder:step(state, budgetSec, clock)
 
     while state.cursor <= #state.rawItems do
         local raw = state.rawItems[state.cursor]
-        local ok, item, reason, skippedCounts = pcall(extractItem, self, raw)
+        local ok, item, reason, skippedCounts = pcall(extractItem, self, raw, state.fieldCache)
         if ok then
             if item then
                 local itemId = #index.items + 1
-                registerItem(index, item, itemId)
+                registerItem(state, item, itemId)
                 index.items[itemId] = item
             else
                 state.skipped[reason] = (state.skipped[reason] or 0) + 1
@@ -229,11 +259,11 @@ function IndexBuilder:finish(state) -- luacheck: ignore 212/self
     local index = state.index
     local N = #index.items
 
-    for _, list in pairs(index.numeric) do
-        table.sort(list, function(a, b)
-            return a.value < b.value
-        end)
+    for specId, list in pairs(state.numericPairs) do
+        index:setNumeric(specId, list)
     end
+    state.numericPairs = {}
+    state.fieldCache = nil
 
     for token in pairs(index.vocabulary) do
         index:indexPrefixes(token)
@@ -245,8 +275,64 @@ function IndexBuilder:finish(state) -- luacheck: ignore 212/self
 
     -- F3: índice de trigramas do vocabulário, para candidatos fuzzy (ADR-05).
     index.trigramIndex = NS.core.TrigramIndex.build(index.vocabulary)
+    -- F3/ADR-14: frases multi-palavra dos itens (poucas centenas, distintas).
+    index.phraseTrigram = NS.core.TrigramIndex.build(index.phrases)
 
     index.skipped = state.skipped
+end
+
+--- Fração dos itens que têm cada spec (0..1), para decidir quais specs
+--- vão para a camada secundária (IndexLifecycle, < 80%).
+---@param index SearchIndex
+---@param specIds string[]
+---@return table<string, number>
+function IndexBuilder.specCoverage(index, specIds)
+    local out = {}
+    local n = #index.items
+    for _, specId in ipairs(specIds) do
+        local list = index.numeric[specId]
+        local count = list and #list.ids or 0
+        out[specId] = (n > 0) and (count / n) or 0
+    end
+    return out
+end
+
+--- Aplica specs secundárias (lidas do XML do item, F6) a um índice já
+--- construído, de uma vez só: nunca sobrescreve uma spec primária, descarta
+--- valores inválidos e reordena as faixas numéricas afetadas.
+---@param index SearchIndex
+---@param additions table<integer, table<string, number>>  itemId -> {specId = valor canônico}
+---@return integer added
+function IndexBuilder.applySecondary(index, additions)
+    local added = 0
+    local newPairs = {}
+    for itemId, specs in pairs(additions) do
+        local item = index.items[itemId]
+        if item then
+            for specId, value in pairs(specs) do
+                if not item.specs[specId] and isFiniteNonNegativeNumber(value) then
+                    item.specs[specId] = { value = value, source = "secondary" }
+                    local list = newPairs[specId]
+                    if not list then
+                        list = {}
+                        newPairs[specId] = list
+                    end
+                    list[#list + 1] = { value = value, id = itemId }
+                    added = added + 1
+                end
+            end
+        end
+    end
+    for specId, list in pairs(newPairs) do
+        local existing = index.numeric[specId]
+        if existing then
+            for i, v in ipairs(existing.values) do
+                list[#list + 1] = { value = v, id = existing.ids[i] }
+            end
+        end
+        index:setNumeric(specId, list)
+    end
+    return added
 end
 
 ---@param rawItems RawItem[]

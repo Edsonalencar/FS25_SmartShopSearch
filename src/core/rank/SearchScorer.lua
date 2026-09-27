@@ -57,7 +57,11 @@ function SearchScorer.score(query, item, termHits, conceptHits, W) -- luacheck: 
         if h then
             raw = raw + h.value * idf
             hit = hit + 1
-            reasons[#reasons + 1] = h.reason
+            -- Um hit de frase (ADR-14) cobre termos consecutivos com o mesmo
+            -- MatchReason: registra o motivo uma vez só.
+            if reasons[#reasons] ~= h.reason then
+                reasons[#reasons + 1] = h.reason
+            end
         end
     end
 
