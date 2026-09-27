@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<l10N>
+    <texts>
+        <text name="input_SMART_SHOP_SEARCH" text="Pesquisar na loja" />
+        <text name="sss_button_search" text="Pesquisar" />
+        <text name="sss_dialog_title" text="Pesquisar na loja" />
+        <text name="sss_results_header" text="Pesquisa: %s (%d)" />
+        <text name="sss_results_empty" text="Nenhum resultado para &quot;%s&quot;" />
+        <text name="sss_clear" text="Limpar" />
+        <text name="sss_state_degraded" text="A Pesquisa Inteligente da Loja está temporariamente desativada" />
+    </texts>
+</l10N>

@@ -1,0 +1,7 @@
+/dist/
+/.lua/
+/.luarocks/
+*.zip
+/spike/**/dumps/
+.vscode/*
+!.vscode/settings.json

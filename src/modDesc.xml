@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<modDesc descVersion="96">
+    <author>FS25 Mods Editor</author>
+    <version>1.0.0.0</version>
+    <title>
+        <en>Smart Shop Search</en>
+        <br>Pesquisa Inteligente da Loja</br>
+    </title>
+    <description>
+        <en><![CDATA[Smart search for the shop: typo tolerance, brands, categories, specs, prices and ranges.]]></en>
+        <br><![CDATA[Pesquisa inteligente na loja: tolera erros de digitação, marcas, categorias, especificações, preços e faixas.]]></br>
+    </description>
+    <iconFilename>icon_SmartShopSearch.dds</iconFilename>
+    <multiplayer supported="true"/>
+    <l10n filenamePrefix="translations/translation"/>
+    <extraSourceFiles>
+        <sourceFile filename="main.lua"/>
+    </extraSourceFiles>
+    <actions>
+        <action name="SMART_SHOP_SEARCH" category="ONFOOT VEHICLE" axisType="HALF"/>
+    </actions>
+    <inputBinding>
+        <actionBinding action="SMART_SHOP_SEARCH">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_f"/>
+        </actionBinding>
+    </inputBinding>
+</modDesc>

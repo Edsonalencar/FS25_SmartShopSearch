@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<l10N>
+    <texts>
+        <text name="input_SMART_SHOP_SEARCH" text="Search shop" />
+        <text name="sss_button_search" text="Search" />
+        <text name="sss_dialog_title" text="Search the shop" />
+        <text name="sss_results_header" text="Search: %s (%d)" />
+        <text name="sss_results_empty" text="No results for &quot;%s&quot;" />
+        <text name="sss_clear" text="Clear" />
+        <text name="sss_state_degraded" text="Smart Shop Search is temporarily disabled" />
+    </texts>
+</l10N>
