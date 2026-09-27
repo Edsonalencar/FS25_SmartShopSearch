@@ -28,6 +28,20 @@ function ConsoleRegistrar:remove(name)
     end
 end
 
+-- Clock mínimo sobre getTimeSec (jogo) — só usado por IndexLifecycle para
+-- orçamento de tempo da construção fatiada do índice (ADR-04).
+local GameClock = {}
+GameClock.__index = GameClock
+function GameClock.new()
+    return setmetatable({}, GameClock)
+end
+function GameClock:now() -- luacheck: ignore 212
+    if type(getTimeSec) == "function" then
+        return getTimeSec()
+    end
+    return os.clock()
+end
+
 local listener = {}
 
 function listener:loadMap() -- luacheck: ignore 212/self
@@ -39,11 +53,53 @@ function listener:loadMap() -- luacheck: ignore 212/self
         NS.app.settings:loadSettings()
         NS.app.logger:setLevel(NS.app.settings:get("debug#logLevel"))
 
-        -- F3+: dados linguísticos (LinguisticData) carregados aqui.
-        -- F6+: StoreCatalogSource, SearchService real e ShopGuiAdapter.install() aqui.
+        local locales = NS.adapters.GameLocale.dataLocales()
+        local dataLoader = NS.adapters.XmlDataLoader.new(NS.MOD_DIR)
+        NS.app.data = NS.app.LinguisticData.new(dataLoader, locales, NS.app.logger)
+        local commonUnits = NS.app.data:commonUnits()
+
+        local normalizer = NS.core.TextNormalizer.new({
+            protected = (commonUnits and commonUnits.protected) or {},
+            currency = { "r$", "$", "€", "£" },
+        })
+
+        local specRegistry = NS.core.SpecRegistry.build(commonUnits)
+        local specExtractor = NS.adapters.SpecExtractor.new(specRegistry, NS.app.logger)
+        NS.adapters.storeCatalogSource = NS.adapters.StoreCatalogSource.new(specExtractor, NS.app.logger)
+
+        local builder = NS.core.IndexBuilder.new(normalizer)
+        NS.app.indexLifecycle.deps = {
+            catalog = NS.adapters.storeCatalogSource,
+            builder = builder,
+            clock = GameClock.new(),
+        }
+
+        NS.app.searchService = NS.app.SearchService.new({
+            indexLifecycle = NS.app.indexLifecycle,
+            normalizer = normalizer,
+            settings = NS.app.settings,
+            logger = NS.app.logger,
+            data = NS.app.data,
+        })
+
+        NS.app.searchState = NS.app.SearchState.new()
+        NS.adapters.inputAdapter = NS.adapters.InputAdapter.new(function()
+            NS.adapters.shopGuiAdapter:openInput()
+        end)
+        NS.adapters.shopGuiAdapter = NS.adapters.ShopGuiAdapter.new(
+            NS.app.searchService,
+            NS.app.searchState,
+            NS.adapters.inputAdapter,
+            NS.app.settings,
+            NS.app.logger,
+            NS.app.state
+        )
+        NS.adapters.shopGuiAdapter:install()
 
         NS.app.consoleRegistrar = NS.app.consoleRegistrar or ConsoleRegistrar.new()
-        NS.app.Console.install(NS.app.consoleRegistrar, NS.adapters.HookRegistry.status)
+        NS.app.Console.install(NS.app.consoleRegistrar, NS.adapters.HookRegistry.status, function()
+            return NS.adapters.storeCatalogSource:dumpToFile()
+        end)
 
         NS.app.state:set("ready")
         NS.app.logger:info("bootstrap", "v%s carregado", NS.VERSION)

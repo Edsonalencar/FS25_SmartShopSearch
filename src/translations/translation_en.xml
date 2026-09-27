@@ -8,5 +8,6 @@
         <text name="sss_results_empty" text="No results for &quot;%s&quot;" />
         <text name="sss_clear" text="Clear" />
         <text name="sss_state_degraded" text="Smart Shop Search is temporarily disabled" />
+        <text name="sss_indexing" text="Indexing items..." />
     </texts>
 </l10N>

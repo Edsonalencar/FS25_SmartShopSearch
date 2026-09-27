@@ -8,5 +8,6 @@
         <text name="sss_results_empty" text="Nenhum resultado para &quot;%s&quot;" />
         <text name="sss_clear" text="Limpar" />
         <text name="sss_state_degraded" text="A Pesquisa Inteligente da Loja está temporariamente desativada" />
+        <text name="sss_indexing" text="Indexando itens..." />
     </texts>
 </l10N>

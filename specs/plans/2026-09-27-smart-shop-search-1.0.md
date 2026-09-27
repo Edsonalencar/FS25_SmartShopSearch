@@ -1253,19 +1253,17 @@ end
 ### Success Criteria
 
 #### Automated Verification
-- [ ] `make ci` verde.
-- [ ] `make verify`: o manifesto inclui todos os adapters; as traduções têm as novas chaves.
+- [x] `make ci` verde (fmt-check, lint, deps, trace, test, bench, verify — 190 testes).
+- [x] `make verify`: o manifesto inclui todos os adapters (`SpecExtractor`, `StoreCatalogSource`, `InputAdapter`, `ShopGuiAdapter`); as traduções têm `sss_indexing` além das chaves da F1.
 
 #### Manual Verification
-- [ ] Na loja: o botão aparece só nas páginas elegíveis; a hotkey (rebindável em Controles) abre o diálogo (RF-001/002).
-- [ ] `trtor jon dere entre 200 e 300 cv por menos de 150 mil` mostra tratores John Deere da faixa, na ordem do `sssQuery` (RF-003, ADR-07).
-- [ ] Consulta sem resultado mostra o estado vazio sem erro (RF-005).
-- [ ] "Limpar" volta à listagem anterior e a próxima busca não herda filtros (RF-004).
-- [ ] Compra e detalhes de um item a partir da categoria virtual funcionam normalmente.
-- [ ] Forçar erro (settings de debug `simulateFailure="gui"`, suportado por `ShopGuiAdapter` somente em debug) → a loja continua funcional, o botão some e o log tem uma única linha de erro (RF-060, AC-RES-03).
-- [ ] `log.txt` sem erros; ≤ 3 linhas `info` do mod na sessão.
+- [ ] Na loja: o botão aparece só nas páginas elegíveis; a hotkey abre o diálogo — **bloqueado**: requer FS25 real (ver ressalva da F5).
+- [ ] `trtor jon dere...` mostra tratores John Deere na ordem do `sssQuery` — **verificado offline** via `tools/query.lua` (idêntico ao pipeline usado por `ShopGuiAdapter:show`); não verificado dentro da GUI real do jogo.
+- [ ] Consulta sem resultado / "Limpar" / compra e detalhes / falha forçada / `log.txt` — todos **bloqueados**, mesma razão.
 
-**⏸ PAUSE**: aguardar confirmação humana antes da Fase 7.
+**Nota de escopo**: `settings de debug simulateFailure="gui"` (injeção de falha manual mencionada neste critério) não foi implementado — só teria valor para o teste manual acima, que não pode rodar neste ambiente; sinalizado para quando a F5 acontecer de verdade.
+
+**⏸ PAUSE**: aguardar confirmação humana antes da Fase 7. Prossegui mesmo assim por instrução explícita do usuário — ver ressalva da F5 sobre o que fica pendente de verificação em jogo.
 
 ---
 
