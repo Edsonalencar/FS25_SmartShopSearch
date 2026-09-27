@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+  Catálogo sintético (F2 §2.6 do spec). Cobre marcas/categorias plausíveis
+  (os ids reais só são confirmados na F5 — a correção depois é só de dados,
+  em data/<lang>/aliases.xml, sem mudar este fixture nem o código).
+-->
+<catalog profile="synthetic">
+    <!-- Tratores John Deere -->
+    <item xmlFilename="data/vehicles/johnDeere/6r/6r150.xml" name="6R 150" brand="JOHNDEERE" brandTitle="John Deere"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="180000" origin="base">
+        <spec id="power" value="110" unit="kw" /><spec id="maxSpeed" value="40" unit="kmh" />
+    </item>
+    <item xmlFilename="data/vehicles/johnDeere/6r/6r185.xml" name="6R 185" brand="JOHNDEERE" brandTitle="John Deere"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="210000" origin="base">
+        <spec id="power" value="136" unit="kw" /><spec id="maxSpeed" value="50" unit="kmh" />
+    </item>
+    <item xmlFilename="data/vehicles/johnDeere/6r/6r250.xml" name="6R 250" brand="JOHNDEERE" brandTitle="John Deere"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="248000" origin="base">
+        <spec id="power" value="184" unit="kw" /><spec id="maxSpeed" value="50" unit="kmh" />
+    </item>
+    <item xmlFilename="data/vehicles/johnDeere/6m/6m155.xml" name="6M 155" brand="JOHNDEERE" brandTitle="John Deere"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="135000" origin="base">
+        <spec id="power" value="150" unit="kw" /><spec id="maxSpeed" value="40" unit="kmh" />
+    </item>
+    <item xmlFilename="data/vehicles/johnDeere/6r/6r195.xml" name="6R 195" brand="JOHNDEERE" brandTitle="John Deere"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="148000" origin="base">
+        <spec id="power" value="155" unit="kw" /><spec id="maxSpeed" value="50" unit="kmh" />
+    </item>
+    <item xmlFilename="data/vehicles/johnDeere/6r/6r215.xml" name="6R 215" brand="JOHNDEERE" brandTitle="John Deere"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="149000" origin="base">
+        <spec id="power" value="178" unit="kw" /><spec id="maxSpeed" value="50" unit="kmh" />
+    </item>
+    <item xmlFilename="data/vehicles/johnDeere/7r/7r350.xml" name="7R 350" brand="JOHNDEERE" brandTitle="John Deere"
+        categoryId="TRACTORSL" categoryTitle="Tratores L" species="vehicle" price="320000" origin="base">
+        <spec id="power" value="257" unit="kw" /><spec id="maxSpeed" value="50" unit="kmh" />
+    </item>
+    <item xmlFilename="data/vehicles/johnDeere/8r/8r410.xml" name="8R 410" brand="JOHNDEERE" brandTitle="John Deere"
+        categoryId="TRACTORSL" categoryTitle="Tratores L" species="vehicle" price="410000" origin="base">
+        <spec id="power" value="301" unit="kw" /><spec id="maxSpeed" value="50" unit="kmh" />
+    </item>
+
+    <!-- Tratores Fendt -->
+    <item xmlFilename="data/vehicles/fendt/720/fendt720.xml" name="Fendt 720 Vario" brand="FENDT" brandTitle="Fendt"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="230000" origin="base">
+        <spec id="power" value="147" unit="kw" />
+    </item>
+    <item xmlFilename="data/vehicles/fendt/900/fendt900.xml" name="Fendt 900 Vario" brand="FENDT" brandTitle="Fendt"
+        categoryId="TRACTORSL" categoryTitle="Tratores L" species="vehicle" price="310000" origin="base">
+        <spec id="power" value="265" unit="kw" />
+    </item>
+    <item xmlFilename="data/vehicles/fendt/942/fendt942.xml" name="Fendt 942 Vario" brand="FENDT" brandTitle="Fendt"
+        categoryId="TRACTORSL" categoryTitle="Tratores L" species="vehicle" price="350000" origin="base">
+        <spec id="power" value="309" unit="kw" />
+    </item>
+
+    <!-- Tratores New Holland -->
+    <item xmlFilename="data/vehicles/newHolland/t7/t7245.xml" name="T7 245" brand="NEWHOLLAND" brandTitle="New Holland"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="195000" origin="base">
+        <spec id="power" value="145" unit="kw" />
+    </item>
+    <item xmlFilename="data/vehicles/newHolland/t8/t8410.xml" name="T8 410" brand="NEWHOLLAND" brandTitle="New Holland"
+        categoryId="TRACTORSL" categoryTitle="Tratores L" species="vehicle" price="300000" origin="base">
+        <spec id="power" value="254" unit="kw" />
+    </item>
+
+    <!-- Tratores Case IH -->
+    <item xmlFilename="data/vehicles/caseIh/optum/optum300.xml" name="Optum 300 CVX" brand="CASEIH" brandTitle="Case IH"
+        categoryId="TRACTORSL" categoryTitle="Tratores L" species="vehicle" price="290000" origin="base">
+        <spec id="power" value="221" unit="kw" />
+    </item>
+    <item xmlFilename="data/vehicles/caseIh/puma/puma175.xml" name="Puma 175" brand="CASEIH" brandTitle="Case IH"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="175000" origin="base">
+        <spec id="power" value="129" unit="kw" />
+    </item>
+
+    <!-- Tratores Massey Ferguson -->
+    <item xmlFilename="data/vehicles/masseyFerguson/6712/mf6712.xml" name="MF 6712" brand="MASSEYFERGUSON"
+        brandTitle="Massey Ferguson" categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="165000"
+        origin="base">
+        <spec id="power" value="92" unit="kw" />
+    </item>
+    <item xmlFilename="data/vehicles/masseyFerguson/8s/mf8s245.xml" name="MF 8S.245" brand="MASSEYFERGUSON"
+        brandTitle="Massey Ferguson" categoryId="TRACTORSL" categoryTitle="Tratores L" species="vehicle" price="280000"
+        origin="base">
+        <spec id="power" value="180" unit="kw" />
+    </item>
+
+    <!-- Tratores Valtra -->
+    <item xmlFilename="data/vehicles/valtra/a950/valtraA950.xml" name="Valtra A950" brand="VALTRA" brandTitle="Valtra"
+        categoryId="TRACTORSS" categoryTitle="Tratores S" species="vehicle" price="120000" origin="base">
+        <spec id="power" value="70" unit="kw" />
+    </item>
+    <item xmlFilename="data/vehicles/valtra/t254/valtraT254.xml" name="Valtra T254" brand="VALTRA" brandTitle="Valtra"
+        categoryId="TRACTORSL" categoryTitle="Tratores L" species="vehicle" price="260000" origin="base">
+        <spec id="power" value="180" unit="kw" />
+    </item>
+
+    <!-- Pulverizadores -->
+    <item xmlFilename="data/vehicles/jacto/serieX/serieX.xml" name="Pulverizador Autopropelido Série X" brand="JACTO"
+        brandTitle="Jacto" categoryId="SPRAYERSL" categoryTitle="Pulverizadores" species="vehicle" price="700000"
+        origin="base">
+        <spec id="capacity" value="4000" unit="l" /><spec id="workingWidth" value="30" unit="m" />
+    </item>
+    <item xmlFilename="data/vehicles/jacto/condor/condor1000.xml" name="Pulverizador Condor 1000" brand="JACTO"
+        brandTitle="Jacto" categoryId="SPRAYERSM" categoryTitle="Pulverizadores" species="vehicle" price="580000"
+        origin="base">
+        <spec id="capacity" value="3000" unit="l" />
+    </item>
+    <item xmlFilename="data/vehicles/stara/uniport/uniport3030.xml" name="Pulverizador Uniport 3030" brand="STARA"
+        brandTitle="Stara" categoryId="SPRAYERSL" categoryTitle="Pulverizadores" species="vehicle" price="620000"
+        origin="base">
+        <spec id="capacity" value="3000" unit="l" />
+    </item>
+
+    <!-- Semeadeiras / plantadeiras -->
+    <item xmlFilename="data/vehicles/vaderstad/tempo/tempo8010.xml" name="Semeadora Tempo 8010" brand="VADERSTAD"
+        brandTitle="Väderstad" categoryId="SEEDERSM" categoryTitle="Semeadoras" species="vehicle" price="420000"
+        origin="base" />
+    <item xmlFilename="data/vehicles/stara/pld/pld13.xml" name="Plantadeira PLD 13" brand="STARA" brandTitle="Stara"
+        categoryId="PLANTERSM" categoryTitle="Plantadeiras" species="vehicle" price="380000" origin="base" />
+    <item xmlFilename="data/vehicles/baldan/shm/shm15.xml" name="Semeadora SHM 15" brand="BALDAN" brandTitle="Baldan"
+        categoryId="SEEDERSL" categoryTitle="Semeadoras" species="vehicle" price="350000" origin="base" />
+
+    <!-- Reboques / carretas -->
+    <item xmlFilename="data/vehicles/baldan/basculante/basculante12t.xml" name="Reboque Basculante 12T" brand="BALDAN"
+        brandTitle="Baldan" categoryId="TRAILERSM" categoryTitle="Reboques" species="vehicle" price="85000"
+        origin="base">
+        <spec id="capacity" value="12000" unit="l" />
+    </item>
+    <item xmlFilename="data/vehicles/recker/graneleira/graneleira24t.xml" name="Carreta Graneleira 24T" brand="RECKER"
+        brandTitle="Recker" categoryId="TRAILERSL" categoryTitle="Reboques" species="vehicle" price="130000"
+        origin="base">
+        <spec id="capacity" value="24000" unit="l" />
+    </item>
+    <item xmlFilename="data/vehicles/krone/ta/ta18000.xml" name="Trailer TA 18000" brand="KRONE" brandTitle="Krone"
+        categoryId="TRAILERSM" categoryTitle="Reboques" species="vehicle" price="110000" origin="base">
+        <spec id="capacity" value="18000" unit="l" />
+    </item>
+
+    <!-- Colheitadeiras -->
+    <item xmlFilename="data/vehicles/johnDeere/s760/s760.xml" name="Colheitadeira S760" brand="JOHNDEERE"
+        brandTitle="John Deere" categoryId="HARVESTERSL" categoryTitle="Colheitadeiras" species="vehicle"
+        price="1200000" origin="base">
+        <spec id="power" value="350" unit="kw" />
+    </item>
+    <item xmlFilename="data/vehicles/newHolland/cr890/cr890.xml" name="Colhedora CR 8.90" brand="NEWHOLLAND"
+        brandTitle="New Holland" categoryId="HARVESTERSL" categoryTitle="Colheitadeiras" species="vehicle"
+        price="1150000" origin="base">
+        <spec id="power" value="330" unit="kw" />
+    </item>
+
+    <!-- Enfardadeiras -->
+    <item xmlFilename="data/vehicles/newHolland/bigBaler/bigBaler1290.xml" name="Enfardadeira BigBaler 1290"
+        brand="NEWHOLLAND" brandTitle="New Holland" categoryId="BALERSM" categoryTitle="Enfardadeiras"
+        species="vehicle" price="320000" origin="base" />
+    <item xmlFilename="data/vehicles/claas/lb1290/lb1290.xml" name="Enfardadeira LB 1290" brand="CLAAS"
+        brandTitle="Claas" categoryId="BALERSM" categoryTitle="Enfardadeiras" species="vehicle" price="310000"
+        origin="base" />
+
+    <!-- Itens de mod -->
+    <item xmlFilename="mods/FS25_AgroMods/tratorX200.xml" name="AgroMods Trator X200" brand="JOHNDEERE"
+        brandTitle="John Deere" categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="195000"
+        origin="mod" modName="FS25_AgroMods" modTitle="AgroMods Tractor Pack" author="FarmerBR">
+        <spec id="power" value="150" unit="kw" />
+    </item>
+    <item xmlFilename="mods/FS25_AgroMods/tratorY300.xml" name="AgroMods Trator Y300" brand="JOHNDEERE"
+        brandTitle="John Deere" categoryId="TRACTORSL" categoryTitle="Tratores L" species="vehicle" price="230000"
+        origin="mod" modName="FS25_AgroMods" modTitle="AgroMods Tractor Pack" author="FarmerBR">
+        <spec id="power" value="190" unit="kw" />
+    </item>
+    <item xmlFilename="mods/FS25_CustomTrailer/customTrailer24t.xml" name="Custom Trailer 24T" brand="RECKER"
+        brandTitle="Recker" categoryId="TRAILERSL" categoryTitle="Reboques" species="vehicle" price="95000"
+        origin="mod" modName="FS25_CustomTrailer" modTitle="Custom Equipment Pack" author="ModderXYZ">
+        <spec id="capacity" value="24000" unit="l" />
+    </item>
+
+    <!-- Itens de DLC -->
+    <item xmlFilename="dlc/goldenFields/tractorZ.xml" name="DLC Special Tractor Z" brand="CASEIH" brandTitle="Case IH"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="210000" origin="dlc"
+        dlcTitle="Golden Fields DLC">
+        <spec id="power" value="160" unit="kw" />
+    </item>
+    <item xmlFilename="dlc/goldenFields/sprayerZ.xml" name="DLC Sprayer Z" brand="JACTO" brandTitle="Jacto"
+        categoryId="SPRAYERSM" categoryTitle="Pulverizadores" species="vehicle" price="400000" origin="dlc"
+        dlcTitle="Golden Fields DLC" />
+
+    <!-- Itens malformados (RF-061/062, AC-RES-02) -->
+    <item xmlFilename="malformed/noBrand.xml" name="Trator Sem Marca X" categoryId="TRACTORSM"
+        categoryTitle="Tratores M" species="vehicle" price="150000" origin="base">
+        <spec id="power" value="100" unit="kw" />
+    </item>
+    <item xmlFilename="malformed/noCategory.xml" name="Implemento Sem Categoria" brand="STARA" brandTitle="Stara"
+        species="vehicle" price="90000" origin="base" />
+    <item xmlFilename="malformed/emptyName.xml" name="" brand="VALTRA" brandTitle="Valtra" categoryId="TRACTORSS"
+        categoryTitle="Tratores S" species="vehicle" price="100000" origin="base" />
+    <item xmlFilename="malformed/badPrice.xml" name="Trator Preco Invalido" brand="CASEIH" brandTitle="Case IH"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="abc" origin="base" />
+    <item xmlFilename="malformed/negPower.xml" name="Trator Potencia Negativa" brand="MASSEYFERGUSON"
+        brandTitle="Massey Ferguson" categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="140000"
+        origin="base">
+        <spec id="power" value="-1" unit="kw" />
+    </item>
+    <item xmlFilename="malformed/nanPower.xml" name="Trator Potencia NaN" brand="NEWHOLLAND" brandTitle="New Holland"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="145000" origin="base">
+        <spec id="power" value="nan" unit="kw" />
+    </item>
+    <item name="Item Sem XmlFilename" brand="STARA" brandTitle="Stara" categoryId="TRACTORSM"
+        categoryTitle="Tratores M" species="vehicle" price="50000" origin="base" />
+    <item xmlFilename="malformed/magicChars.xml" name="Trator X-100 (Edição %Especial) [V2]" brand="STARA"
+        brandTitle="Stara" categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="175000"
+        origin="base" />
+</catalog>

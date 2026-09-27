@@ -565,13 +565,13 @@ Adicionar `workflow_dispatch:` a `on`. Sem runner self-hosted, o job fica penden
 ### Success Criteria
 
 #### Automated Verification
-- [ ] `make setup` instala Lua 5.1, busted e luacheck localmente.
-- [ ] `make fmt-check lint` passa.
-- [ ] `make deps` passa. Um arquivo temporário `src/core/x.lua` com `g_storeManager` faz o comando falhar (teste manual do lint, depois apagar).
-- [ ] `make trace` passa com todos os `RF/RNF/RMH` presentes em `docs/traceability.md`.
-- [ ] `make unit` passa (`app_spec`).
-- [ ] `make verify` gera o ZIP em diretório temporário e valida o `modDesc.xml`, o manifesto, as traduções e a allowlist.
-- [ ] CI do GitHub verde no primeiro push.
+- [x] `make setup` instala Lua 5.1, busted e luacheck localmente. (feito via hererocks + luarocks; StyLua via release binária — sem cargo disponível)
+- [x] `make fmt-check lint` passa.
+- [x] `make deps` passa. Um arquivo temporário `src/core/x.lua` com `g_storeManager` faz o comando falhar (teste manual do lint, depois apagar).
+- [x] `make trace` passa com todos os `RF/RNF/RMH` presentes em `docs/traceability.md`.
+- [x] `make unit` passa (`app_spec`).
+- [x] `make verify` gera o ZIP em diretório temporário e valida o `modDesc.xml`, o manifesto, as traduções e a allowlist.
+- [ ] CI do GitHub verde no primeiro push. — **não aplicável neste ambiente**: sem remoto GitHub configurado/push feito; além disso `make ci` só fecha totalmente a partir da F2 (tests/prop, tests/golden e tests/bench ainda não existem na F1).
 
 #### Manual Verification
 - [ ] Ler `docs/traceability.md` e confirmar que ele espelha o Apêndice A.
@@ -797,13 +797,13 @@ Todo `<case>` tem atributo `ac="AC-..."` (ids do Apêndice A.4) ou `req="RF-..."
 ### Success Criteria
 
 #### Automated Verification
-- [ ] `make unit prop` passa.
-- [ ] `make golden` passa (todos os casos `phase="2"`) e imprime as métricas.
-- [ ] `make bench`: build de 3000 itens ≤ 150 ms e consulta simples p95 ≤ 5 ms na máquina de dev; gravar a baseline com `--write-baseline`.
-- [ ] `make deps lint trace verify` continuam verdes.
+- [x] `make unit prop` passa.
+- [x] `make golden` passa (todos os casos `phase="2"`) e imprime as métricas.
+- [x] `make bench`: build de 3000 itens ≤ 150 ms (~130 ms na máquina de dev) e consulta simples p95 ≤ 5 ms; baseline gravada em `tests/bench/baseline.lua`.
+- [x] `make deps lint trace verify` continuam verdes.
 
 #### Manual Verification
-- [ ] Rodar `lua tools/query.lua "john 6r"`, script de dev que imprime a `Query`, o top 10, os scores e os `reasons` sobre o catálogo sintético, e avaliar se a ordem faz sentido.
+- [x] Rodar `lua tools/query.lua "john 6r"`, script de dev que imprime a `Query`, o top 10, os scores e os `reasons` sobre o catálogo sintético, e avaliar se a ordem faz sentido. — ordem coerente: os 5 itens que satisfazem os 3 termos empatam em score e desempatam por nome; os que só satisfazem 2 termos vêm depois.
 
 **⏸ PAUSE**: aguardar confirmação humana antes da Fase 3.
 

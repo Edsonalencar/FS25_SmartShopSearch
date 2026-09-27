@@ -23,8 +23,8 @@ function Diagnostics:recordBuild(timeMs, itemCount, tokenCount, memoryKb)
     self.memoryKb = memoryKb
 end
 
-function Diagnostics:recordSkip(reason)
-    self.skipped[reason] = (self.skipped[reason] or 0) + 1
+function Diagnostics:recordSkip(reason, count)
+    self.skipped[reason] = (self.skipped[reason] or 0) + (count or 1)
 end
 
 function Diagnostics:recordLatency(ms)
