@@ -67,11 +67,18 @@ function listener:loadMap() -- luacheck: ignore 212/self
         local specExtractor = NS.adapters.SpecExtractor.new(specRegistry, NS.app.logger)
         NS.adapters.storeCatalogSource = NS.adapters.StoreCatalogSource.new(specExtractor, NS.app.logger)
 
+        local specIds = {}
+        for specId in pairs(specRegistry) do
+            specIds[#specIds + 1] = specId
+        end
+        table.sort(specIds)
+
         local builder = NS.core.IndexBuilder.new(normalizer)
         NS.app.indexLifecycle.deps = {
             catalog = NS.adapters.storeCatalogSource,
             builder = builder,
             clock = GameClock.new(),
+            specIds = specIds, -- liga a fase de specs secundárias (F6)
         }
 
         NS.adapters.compatibilityExtractor = NS.adapters.CompatibilityExtractor.new(NS.app.logger)

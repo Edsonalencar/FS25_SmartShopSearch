@@ -18,8 +18,15 @@ local function statusLines()
         (state and state.reason) and (" (" .. state.reason .. ")") or ""
     )
     lines[#lines + 1] = string.format("versao: %s", NS.VERSION)
-    local size = (NS.app.indexLifecycle and NS.app.indexLifecycle:itemCount()) or 0
-    lines[#lines + 1] = string.format("indice: %d itens", size)
+    local lifecycle = NS.app.indexLifecycle
+    local size = (lifecycle and lifecycle:itemCount()) or 0
+    local busy = lifecycle and lifecycle:isBusy()
+    lines[#lines + 1] = string.format("indice: %d itens%s", size, busy and " (indexando)" or "")
+    local diag = NS.app.diagnostics
+    if diag and diag.secondaryReads > 0 then
+        lines[#lines + 1] =
+            string.format("specs secundarias: %d XML lidos, %d specs", diag.secondaryReads, diag.secondaryAdded)
+    end
     for _, h in ipairs(hookStatusFn and hookStatusFn() or {}) do
         lines[#lines + 1] = string.format("hook %s: ativo=%s falhas=%d", h.id, tostring(h.active), h.failures)
     end
@@ -144,6 +151,55 @@ function Console.bench(n)
     return text
 end
 
+-- Chaves alteráveis por `sssSet` (F7, RF-052/G7): nome curto → chave do
+-- SettingsStore. Só booleanos nesta versão.
+local SETTABLE = {
+    showReasons = "ui#showReasons",
+    incremental = "ui#incremental",
+}
+local SETTABLE_ORDER = { "showReasons", "incremental" }
+
+local BOOL_WORDS = {
+    ["1"] = true,
+    ["true"] = true,
+    on = true,
+    sim = true,
+    ["0"] = false,
+    ["false"] = false,
+    off = false,
+    nao = false,
+}
+
+--- sssSet [<chave> <0|1>]: sem argumentos, lista os valores atuais; com
+--- argumentos, grava o novo valor em modSettings (sempre disponível).
+function Console.set(name, value)
+    local settings = NS.app.settings
+    if not settings then
+        return "configurações indisponíveis"
+    end
+    if name == nil or name == "" then
+        local lines = {}
+        for _, short in ipairs(SETTABLE_ORDER) do
+            lines[#lines + 1] = string.format("%s = %s", short, tostring(settings:get(SETTABLE[short])))
+        end
+        local out = table.concat(lines, "\n")
+        NS.app.logger:info("console", "%s", out)
+        return out
+    end
+    local key = SETTABLE[name]
+    if not key then
+        return "chave desconhecida: " .. tostring(name) .. " (use " .. table.concat(SETTABLE_ORDER, ", ") .. ")"
+    end
+    local parsed = BOOL_WORDS[string.lower(tostring(value or ""))]
+    if parsed == nil then
+        return "uso: sssSet " .. name .. " <0|1>"
+    end
+    settings:set(key, parsed)
+    local out = string.format("%s = %s", name, tostring(parsed))
+    NS.app.logger:info("console", "%s", out)
+    return out
+end
+
 --- @param r ConsoleRegistrar
 --- @param hookStatus fun():table[]|nil  -- ex.: NS.adapters.HookRegistry.status, injetado por GameBootstrap
 function Console.install(r, hookStatus, dumpCatalog)
@@ -159,6 +215,7 @@ function Console.install(r, hookStatus, dumpCatalog)
     registrar:add("sssExplain", "Explica o score de um item especifico (debug)", Console.explain)
     registrar:add("sssDumpCatalog", "Grava dump do catalogo extraido (debug)", Console.dumpCatalog)
     registrar:add("sssBench", "Roda consultas embutidas e mostra p50/p95 (debug)", Console.bench)
+    registrar:add("sssSet", "Altera showReasons/incremental (sssSet <chave> <0|1>)", Console.set)
 end
 
 function Console.uninstall()
@@ -171,6 +228,7 @@ function Console.uninstall()
     registrar:remove("sssExplain")
     registrar:remove("sssDumpCatalog")
     registrar:remove("sssBench")
+    registrar:remove("sssSet")
 end
 
 NS.app.Console = Console

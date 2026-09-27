@@ -12,7 +12,9 @@ function Diagnostics.new()
         memoryKb = 0,
         skipped = {}, -- reason -> count
         latencies = {}, -- anel das últimas 100 consultas (ms)
-        specCoverage = {}, -- spec -> nº de itens com valor
+        specCoverage = {}, -- spec -> fração dos itens com valor (0..1)
+        secondaryReads = 0, -- itens cujo XML foi lido na fase secundária (F6)
+        secondaryAdded = 0, -- specs acrescentadas pela fase secundária
     }, Diagnostics)
 end
 

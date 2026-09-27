@@ -7,12 +7,21 @@ SettingsStore.__index = SettingsStore
 local DEFAULTS = {
     ["debug#enabled"] = false,
     ["debug#logLevel"] = "info",
+    -- Injeção de falha manual para o smoke de degradação (F6, RF-060/AC-RES-03):
+    -- "gui" faz o ShopGuiAdapter falhar de propósito. Só vale com debug#enabled.
+    ["debug#simulateFailure"] = "",
     ["ui#showReasons"] = false,
     ["ui#incremental"] = true,
     ["search#maxResults"] = 300,
 }
 
 local FILE_KEY = "SmartShopSearchSettings"
+
+-- "debug#enabled" → "settings.debug#enabled" (caminho elemento#atributo do
+-- XMLFile). Antes era gsub("#", ".#"), que gerava "settings.debug.#enabled".
+local function xmlKeyOf(key)
+    return "settings." .. key
+end
 
 local function relPath()
     -- [A VALIDAR nome do global na F5]
@@ -34,7 +43,7 @@ function SettingsStore:loadSettings()
         return
     end
     for key in pairs(DEFAULTS) do
-        local xmlKey = "settings." .. key:gsub("#", ".#")
+        local xmlKey = xmlKeyOf(key)
         local default = DEFAULTS[key]
         if type(default) == "boolean" then
             local v = xmlFile:getBool(xmlKey, default)
@@ -78,7 +87,7 @@ function SettingsStore:save()
     end
     for key, default in pairs(DEFAULTS) do
         local value = self:get(key)
-        local xmlKey = "settings." .. key:gsub("#", ".#")
+        local xmlKey = xmlKeyOf(key)
         if type(default) == "boolean" then
             xmlFile:setBool(xmlKey, value)
         elseif type(default) == "number" then

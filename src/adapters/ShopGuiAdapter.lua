@@ -23,6 +23,10 @@ end
 
 local SSS_CATEGORY = "SSS_SEARCH"
 
+-- Orçamento por frame do trabalho fatiado (build do índice, specs
+-- secundárias), só enquanto a loja está aberta (PRD §15: ≤ 8 ms por frame).
+local FRAME_BUDGET_SEC = 0.004
+
 ---@param searchService table  app/SearchService
 ---@param searchState table  app/SearchState
 ---@param inputAdapter table  adapters/InputAdapter
@@ -40,6 +44,9 @@ function ShopGuiAdapter.new(searchService, searchState, inputAdapter, settings, 
         -- tabela fraca por instância de g_shopMenu (§8.2 PRD): nunca cria
         -- campo novo em g_shopMenu, evitando colisão com outros mods.
         ui = setmetatable({}, { mode = "k" }),
+        frameHookActive = false, -- ShopMenu.update enganchado (trabalho fatiado + ações adiadas)
+        pendingAction = nil, -- executada no próximo frame, depois de o indicador aparecer
+        busyShown = false,
     }, ShopGuiAdapter)
 end
 
@@ -56,6 +63,72 @@ function ShopGuiAdapter:_degrade(where, err)
     end
 end
 
+--- Injeção de falha manual (F6): com debug#enabled e
+--- debug#simulateFailure="gui", lança erro dentro dos blocos protegidos da
+--- GUI, para o smoke verificar a degradação (RF-060, AC-RES-03).
+function ShopGuiAdapter:_simulatedFailure(where)
+    local settings = self.settings
+    if settings and settings:get("debug#enabled") == true and settings:get("debug#simulateFailure") == "gui" then
+        error("falha simulada em " .. where .. " (debug#simulateFailure=gui)")
+    end
+end
+
+function ShopGuiAdapter:_lifecycle()
+    return self.searchService and self.searchService.deps and self.searchService.deps.indexLifecycle
+end
+
+--- Indicador `sss_indexing` (F6/F8): troca o texto do botão de busca
+--- enquanto há trabalho fatiado ou uma ação adiada. Só mexe na GUI quando o
+--- estado muda.
+function ShopGuiAdapter:_setBusy(busy)
+    busy = busy == true
+    if busy == self.busyShown then
+        return
+    end
+    self.busyShown = busy
+    local entry = g_shopMenu and self.ui[g_shopMenu]
+    local button = entry and entry.searchButton
+    if button and isFn(button.setText) and g_i18n then
+        pcall(function()
+            button:setText(g_i18n:getText(busy and "sss_indexing" or "sss_button_search"))
+        end)
+    end
+end
+
+--- Chamado a cada frame da loja aberta (hook em ShopMenu.update): executa a
+--- ação adiada, senão avança o trabalho fatiado do índice, e atualiza o
+--- indicador. Com a loja fechada não roda nada (PRD §15, FPS).
+function ShopGuiAdapter:onFrame()
+    local action = self.pendingAction
+    if action then
+        self.pendingAction = nil
+        action()
+    else
+        local lifecycle = self:_lifecycle()
+        if lifecycle and lifecycle:isBusy() then
+            lifecycle:stepPending(FRAME_BUDGET_SEC)
+        end
+    end
+    self:refreshBusy()
+end
+
+--- Sincroniza o indicador com o estado atual (ação adiada ou índice ocupado).
+function ShopGuiAdapter:refreshBusy()
+    local lifecycle = self:_lifecycle()
+    self:_setBusy(self.pendingAction ~= nil or (lifecycle ~= nil and lifecycle:isBusy()))
+end
+
+--- Executa `fn` no próximo frame, com o indicador visível neste; sem o hook
+--- de frame (API ausente), executa na hora.
+function ShopGuiAdapter:_runWithIndicator(fn)
+    if not self.frameHookActive then
+        fn()
+        return
+    end
+    self.pendingAction = fn
+    self:_setBusy(true)
+end
+
 --- Clona (uma vez por instância de g_shopMenu) o primeiro botão do painel,
 --- com o texto de busca e o callback de abrir o diálogo, mais um segundo
 --- botão de "limpar", visível só com busca ativa.
@@ -67,6 +140,7 @@ function ShopGuiAdapter:ensureButton(shopMenu)
         return nil -- [A VALIDAR na F5]: UIHelper/cloneButton pode não existir; guarda de existência (P7)
     end
     local ok, entry = pcall(function()
+        self:_simulatedFailure("ensureButton")
         local template = shopMenu.buttonsPanel.elements and shopMenu.buttonsPanel.elements[1]
         if not template then
             return nil
@@ -149,8 +223,18 @@ end
 --- ordenados exatamente pela ordem do Ranker.
 function ShopGuiAdapter:runSearch(text)
     self.searchState.text = text
-    local results, query = self.searchService:search(text, self.searchState.ui)
-    self:show(results, query)
+    local function run()
+        local results, query = self.searchService:search(text, self.searchState.ui)
+        self:show(results, query)
+    end
+    -- Índice ainda não pronto: a busca vai completar o build de uma vez, então
+    -- mostra o indicador por um frame antes.
+    local lifecycle = self:_lifecycle()
+    if lifecycle and lifecycle.index == nil then
+        self:_runWithIndicator(run)
+    else
+        run()
+    end
 end
 
 function ShopGuiAdapter:show(results, query)
@@ -158,6 +242,7 @@ function ShopGuiAdapter:show(results, query)
         return
     end
     local ok, err = pcall(function()
+        self:_simulatedFailure("show")
         local display = {}
         for i = 1, #results do
             local itemOk, di = pcall(g_shopController.makeDisplayItem, g_shopController, results[i].item.ref)
@@ -208,6 +293,7 @@ function ShopGuiAdapter:openInput()
         return
     end
     local ok, err = pcall(function()
+        self:_simulatedFailure("openInput")
         TextInputDialog.createFromExistingGui({
             text = self.searchState.text or "",
             maxCharacters = 80,
@@ -285,8 +371,12 @@ end
 --- target="selected" — mais simples do que montar o Query manualmente.
 function ShopGuiAdapter:searchCompatibleWithSelected()
     local compatPhrase = (g_i18n and g_i18n:getText("sss_compat_query")) or "compativel com este"
-    local results, query = self.searchService:search(compatPhrase, nil)
-    self:show(results, query)
+    -- A extração de compatibilidade lê o XML dos candidatos: indicador
+    -- `sss_indexing` visível por um frame antes (smoke F8).
+    self:_runWithIndicator(function()
+        local results, query = self.searchService:search(compatPhrase, nil)
+        self:show(results, query)
+    end)
 end
 
 --- Instala os hooks na loja via HookRegistry (ADR-03). Chamar uma vez no
@@ -309,6 +399,7 @@ function ShopGuiAdapter:install()
                 self_.inputAdapter:bind()
                 self_:ensureButton(shopMenu)
                 self_:updateButtonVisibility(shopMenu)
+                self_:refreshBusy() -- build fatiado em andamento: indicador desde a abertura
             end)
         end,
     })
@@ -324,9 +415,28 @@ function ShopGuiAdapter:install()
             end
             NS.app.SafeCall.run("shopgui:onClose", function()
                 self_.inputAdapter:unbind()
+                self_.pendingAction = nil -- ação adiada não sobrevive ao fechamento
+                self_:_setBusy(false)
             end)
         end,
     })
+
+    -- [A VALIDAR na F5]: ShopMenu.update(dt) só roda com a loja aberta. Sem
+    -- ele, o trabalho fatiado avança só na abertura/busca e as ações rodam na hora.
+    self.frameHookActive = HookRegistry.add({
+        id = "shopgui:update",
+        target = ShopMenu,
+        method = "update",
+        kind = "append",
+        fn = function(shopMenu)
+            if shopMenu ~= g_shopMenu then
+                return
+            end
+            NS.app.SafeCall.run("shopgui:update", function()
+                self_:onFrame()
+            end)
+        end,
+    }) == true
 
     HookRegistry.add({
         id = "shopgui:updateButtonsPanel",
