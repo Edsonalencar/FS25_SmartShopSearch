@@ -171,7 +171,7 @@
     <item xmlFilename="mods/FS25_CustomTrailer/customTrailer24t.xml" name="Custom Trailer 24T" brand="RECKER"
         brandTitle="Recker" categoryId="TRAILERSL" categoryTitle="Reboques" species="vehicle" price="95000"
         origin="mod" modName="FS25_CustomTrailer" modTitle="Custom Equipment Pack" author="ModderXYZ">
-        <spec id="capacity" value="24000" unit="l" />
+        <spec id="capacity" value="24000" unit="l" /><spec id="weight" value="24000" unit="kg" />
     </item>
     <!-- F3 (AC-RNK-01): nome com erro de digitação ("Fent") que fuzzy-casa com a
          marca Fendt, usado para provar que marca exata/alias supera fuzzy de nome. -->
@@ -216,4 +216,148 @@
     <item xmlFilename="malformed/magicChars.xml" name="Trator X-100 (Edição %Especial) [V2]" brand="STARA"
         brandTitle="Stara" categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="175000"
         origin="base" />
+
+    <!-- F9+ (pendências offline): ~80 itens, com spec de massa (weight) e as
+         categorias de alias que ainda não tinham itens. -->
+    <!-- Tratores adicionais -->
+    <item xmlFilename="data/vehicles/claas/axion800/axion870.xml" name="Axion 870" brand="CLAAS" brandTitle="Claas"
+        categoryId="TRACTORSL" categoryTitle="Tratores L" species="vehicle" price="265000" origin="base">
+        <spec id="power" value="217" unit="kw" /><spec id="maxSpeed" value="50" unit="kmh" /><spec id="weight" value="11000" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/deutzFahr/series6/6215ttv.xml" name="6215 TTV" brand="DEUTZFAHR" brandTitle="Deutz-Fahr"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="195000" origin="base">
+        <spec id="power" value="158" unit="kw" /><spec id="maxSpeed" value="50" unit="kmh" /><spec id="weight" value="7900" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/kubota/m7/m7173.xml" name="M7-173" brand="KUBOTA" brandTitle="Kubota"
+        categoryId="TRACTORSM" categoryTitle="Tratores M" species="vehicle" price="160000" origin="base">
+        <spec id="power" value="128" unit="kw" /><spec id="maxSpeed" value="50" unit="kmh" /><spec id="weight" value="7000" unit="kg" />
+    </item>
+    <!-- Preparo de solo (grade, arado, subsolador) -->
+    <item xmlFilename="data/vehicles/baldan/gapcr/gapcr.xml" name="Grade Aradora GAPCR" brand="BALDAN" brandTitle="Baldan"
+        categoryId="CULTIVATORSM" categoryTitle="Grades" species="vehicle" price="42000" origin="base">
+        <spec id="workingWidth" value="3.4" unit="m" /><spec id="weight" value="3200" unit="kg" /><spec id="neededPower" value="88" unit="kw" />
+    </item>
+    <item xmlFilename="data/vehicles/kuhn/discover/discoverXm.xml" name="Grade Niveladora Discover XM" brand="KUHN" brandTitle="Kuhn"
+        categoryId="CULTIVATORSM" categoryTitle="Grades" species="vehicle" price="58000" origin="base">
+        <spec id="workingWidth" value="4.5" unit="m" /><spec id="weight" value="4100" unit="kg" /><spec id="neededPower" value="110" unit="kw" />
+    </item>
+    <item xmlFilename="data/vehicles/lemken/heliodor/heliodor9.xml" name="Heliodor 9" brand="LEMKEN" brandTitle="Lemken"
+        categoryId="CULTIVATORSL" categoryTitle="Grades" species="vehicle" price="76000" origin="base">
+        <spec id="workingWidth" value="6" unit="m" /><spec id="weight" value="5300" unit="kg" /><spec id="neededPower" value="147" unit="kw" />
+    </item>
+    <item xmlFilename="data/vehicles/lemken/juwel/juwel8.xml" name="Arado Juwel 8" brand="LEMKEN" brandTitle="Lemken"
+        categoryId="PLOWSM" categoryTitle="Arados" species="vehicle" price="39000" origin="base">
+        <spec id="workingWidth" value="2.5" unit="m" /><spec id="weight" value="2900" unit="kg" /><spec id="neededPower" value="96" unit="kw" />
+    </item>
+    <item xmlFilename="data/vehicles/kverneland/plough2500/plough2500s.xml" name="Arado 2500 S" brand="KVERNELAND" brandTitle="Kverneland"
+        categoryId="PLOWSM" categoryTitle="Arados" species="vehicle" price="35000" origin="base">
+        <spec id="workingWidth" value="2.2" unit="m" /><spec id="weight" value="2400" unit="kg" /><spec id="neededPower" value="81" unit="kw" />
+    </item>
+    <item xmlFilename="data/vehicles/stara/fox/fox.xml" name="Subsolador Fox" brand="STARA" brandTitle="Stara"
+        categoryId="SUBSOILERSM" categoryTitle="Subsoladores" species="vehicle" price="47000" origin="base">
+        <spec id="workingWidth" value="3" unit="m" /><spec id="weight" value="3600" unit="kg" /><spec id="neededPower" value="125" unit="kw" />
+    </item>
+    <!-- Carregadeiras, telescópicas e caminhões -->
+    <item xmlFilename="data/vehicles/volvo/l120h/l120h.xml" name="L120H" brand="VOLVO" brandTitle="Volvo"
+        categoryId="WHEELLOADERSL" categoryTitle="Carregadeiras" species="vehicle" price="310000" origin="base">
+        <spec id="power" value="204" unit="kw" /><spec id="maxSpeed" value="40" unit="kmh" /><spec id="weight" value="20000" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/jcb/435s/435s.xml" name="435S" brand="JCB" brandTitle="JCB"
+        categoryId="WHEELLOADERSM" categoryTitle="Carregadeiras" species="vehicle" price="180000" origin="base">
+        <spec id="power" value="162" unit="kw" /><spec id="maxSpeed" value="40" unit="kmh" /><spec id="weight" value="14800" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/jcb/542-70/54270.xml" name="542-70 Agri Xtra" brand="JCB" brandTitle="JCB"
+        categoryId="TELELOADERSM" categoryTitle="Telescópicas" species="vehicle" price="140000" origin="base">
+        <spec id="power" value="108" unit="kw" /><spec id="maxSpeed" value="40" unit="kmh" /><spec id="weight" value="9500" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/manitou/mlt737/mlt737.xml" name="MLT 737" brand="MANITOU" brandTitle="Manitou"
+        categoryId="TELELOADERSM" categoryTitle="Telescópicas" species="vehicle" price="98000" origin="base">
+        <spec id="power" value="75" unit="kw" /><spec id="maxSpeed" value="30" unit="kmh" /><spec id="weight" value="7200" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/man/tgs/tgs18500.xml" name="TGS 18.500" brand="MAN" brandTitle="MAN"
+        categoryId="TRUCKSL" categoryTitle="Caminhões" species="vehicle" price="190000" origin="base">
+        <spec id="power" value="368" unit="kw" /><spec id="maxSpeed" value="90" unit="kmh" /><spec id="weight" value="8500" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/volvo/fh16/fh16.xml" name="FH16 750" brand="VOLVO" brandTitle="Volvo"
+        categoryId="TRUCKSL" categoryTitle="Caminhões" species="vehicle" price="240000" origin="base">
+        <spec id="power" value="552" unit="kw" /><spec id="maxSpeed" value="90" unit="kmh" /><spec id="weight" value="9200" unit="kg" />
+    </item>
+    <!-- Reboques com massa -->
+    <item xmlFilename="data/vehicles/krampe/bandit750/bandit750.xml" name="Bandit 750" brand="KRAMPE" brandTitle="Krampe"
+        categoryId="TRAILERSL" categoryTitle="Reboques" species="vehicle" price="72000" origin="base">
+        <spec id="capacity" value="30000" unit="l" /><spec id="weight" value="7500" unit="kg" /><spec id="maxSpeed" value="40" unit="kmh" />
+    </item>
+    <item xmlFilename="data/vehicles/fliegl/asw271/asw271.xml" name="ASW 271" brand="FLIEGL" brandTitle="Fliegl"
+        categoryId="TRAILERSL" categoryTitle="Reboques" species="vehicle" price="88000" origin="base">
+        <spec id="capacity" value="40000" unit="l" /><spec id="weight" value="9000" unit="kg" /><spec id="maxSpeed" value="40" unit="kmh" />
+    </item>
+    <item xmlFilename="data/vehicles/kroeger/taw30/taw30.xml" name="TAW 30" brand="KROEGER" brandTitle="Kröger"
+        categoryId="TRAILERSM" categoryTitle="Reboques" species="vehicle" price="54000" origin="base">
+        <spec id="capacity" value="22000" unit="l" /><spec id="weight" value="6500" unit="kg" /><spec id="maxSpeed" value="40" unit="kmh" />
+    </item>
+    <item xmlFilename="data/vehicles/bergmann/ges40/ges40.xml" name="Carreta Graneleira 40T" brand="BERGMANN" brandTitle="Bergmann"
+        categoryId="TRAILERSL" categoryTitle="Reboques" species="vehicle" price="99000" origin="base">
+        <spec id="capacity" value="40000" unit="l" /><spec id="weight" value="11000" unit="kg" /><spec id="maxSpeed" value="40" unit="kmh" />
+    </item>
+    <!-- Forragem, colheita e plantio -->
+    <item xmlFilename="data/vehicles/krone/easyCut/easyCutF320.xml" name="EasyCut F 320" brand="KRONE" brandTitle="Krone"
+        categoryId="MOWERS" categoryTitle="Segadeiras" species="vehicle" price="21000" origin="base">
+        <spec id="workingWidth" value="3.16" unit="m" /><spec id="weight" value="1100" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/kuhn/ga8731/ga8731.xml" name="Enleirador GA 8731" brand="KUHN" brandTitle="Kuhn"
+        categoryId="WINDROWERS" categoryTitle="Enleiradores" species="vehicle" price="33000" origin="base">
+        <spec id="workingWidth" value="8.7" unit="m" /><spec id="weight" value="2800" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/poettinger/hit891/hit891.xml" name="Espalhador HIT 8.91" brand="POTTINGER" brandTitle="Pöttinger"
+        categoryId="TEDDERS" categoryTitle="Espalhadores" species="vehicle" price="26000" origin="base">
+        <spec id="workingWidth" value="8.6" unit="m" /><spec id="weight" value="1500" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/krone/zx470/zx470.xml" name="Vagão Forrageiro ZX 470" brand="KRONE" brandTitle="Krone"
+        categoryId="FORAGEWAGONS" categoryTitle="Vagões forrageiros" species="vehicle" price="145000" origin="base">
+        <spec id="capacity" value="47000" unit="l" /><spec id="weight" value="9500" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/johnDeere/draper/draper740fd.xml" name="Plataforma Draper 740FD" brand="JOHNDEERE" brandTitle="John Deere"
+        categoryId="CUTTERS" categoryTitle="Plataformas" species="vehicle" price="82000" origin="base">
+        <spec id="workingWidth" value="12.2" unit="m" /><spec id="weight" value="4200" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/jacto/advance3000/advance3000.xml" name="Pulverizador de Arrasto Advance 3000" brand="JACTO" brandTitle="Jacto"
+        categoryId="SPRAYERSM" categoryTitle="Pulverizadores" species="vehicle" price="125000" origin="base">
+        <spec id="capacity" value="3000" unit="l" /><spec id="workingWidth" value="24" unit="m" /><spec id="weight" value="3800" unit="kg" />
+    </item>
+    <item xmlFilename="data/vehicles/stara/absoluta27/absoluta27.xml" name="Plantadeira Absoluta 27" brand="STARA" brandTitle="Stara"
+        categoryId="PLANTERSL" categoryTitle="Plantadeiras" species="vehicle" price="310000" origin="base">
+        <spec id="workingWidth" value="12.1" unit="m" /><spec id="weight" value="9800" unit="kg" /><spec id="neededPower" value="221" unit="kw" />
+    </item>
+    <!-- Pesos e ferramenta manual -->
+    <item xmlFilename="data/objects/suer/weight1500/weight1500.xml" name="Peso Frontal 1500" brand="SUER" brandTitle="Suer"
+        categoryId="WEIGHTS" categoryTitle="Pesos" species="vehicle" price="3200" origin="base">
+        <spec id="weight" value="1500" unit="kg" />
+    </item>
+    <item xmlFilename="data/objects/suer/weight2500/weight2500.xml" name="Peso Frontal 2500" brand="SUER" brandTitle="Suer"
+        categoryId="WEIGHTS" categoryTitle="Pesos" species="vehicle" price="4800" origin="base">
+        <spec id="weight" value="2500" unit="kg" />
+    </item>
+    <item xmlFilename="data/handTools/stihl/ms500i/ms500i.xml" name="Motosserra MS 500i" brand="STIHL" brandTitle="Stihl"
+        categoryId="CHAINSAWS" categoryTitle="Motosserras" species="handTool" price="1200" origin="base" />
+    <!-- Mods e DLC adicionais -->
+    <item xmlFilename="mods/FS25_BrasilPack/gradePesada.xml" name="Grade Pesada GPA" brand="TATU" brandTitle="Tatu"
+        categoryId="CULTIVATORSL" categoryTitle="Grades" species="vehicle" price="61000" origin="mod" modName="FS25_BrasilPack" modTitle="Brasil Implementos Pack" author="FarmerBR">
+        <spec id="workingWidth" value="3.8" unit="m" /><spec id="weight" value="5400" unit="kg" />
+    </item>
+    <item xmlFilename="mods/FS25_BrasilPack/carretaCanavieira.xml" name="Carreta Canavieira 30T" brand="TATU" brandTitle="Tatu"
+        categoryId="TRAILERSL" categoryTitle="Reboques" species="vehicle" price="83000" origin="mod" modName="FS25_BrasilPack" modTitle="Brasil Implementos Pack" author="FarmerBR">
+        <spec id="capacity" value="30000" unit="l" /><spec id="weight" value="30000" unit="kg" />
+    </item>
+    <item xmlFilename="mods/FS25_BrasilPack/transbordo.xml" name="Transbordo 20T" brand="JAN" brandTitle="Jan"
+        categoryId="TRAILERSM" categoryTitle="Reboques" species="vehicle" price="67000" origin="mod" modName="FS25_BrasilPack" modTitle="Brasil Implementos Pack" author="FarmerBR">
+        <spec id="capacity" value="20000" unit="l" />
+    </item>
+    <item xmlFilename="dlc/goldenFields/harvesterZ.xml" name="DLC Harvester Z" brand="CLAAS" brandTitle="Claas"
+        categoryId="HARVESTERSL" categoryTitle="Colheitadeiras" species="vehicle" price="520000" origin="dlc" dlcTitle="Golden Fields DLC">
+        <spec id="power" value="400" unit="kw" /><spec id="weight" value="18000" unit="kg" />
+    </item>
+    <item xmlFilename="dlc/goldenFields/trailerZ.xml" name="DLC Trailer Z" brand="KRONE" brandTitle="Krone"
+        categoryId="TRAILERSM" categoryTitle="Reboques" species="vehicle" price="61000" origin="dlc" dlcTitle="Golden Fields DLC">
+        <spec id="capacity" value="18000" unit="l" /><spec id="weight" value="5200" unit="kg" />
+    </item>
 </catalog>

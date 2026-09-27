@@ -25,16 +25,13 @@
     <case id="mod-name" ac="AC-MOD-02" query="agromods"><expectAll top="2" origin="mod" /></case>
     <case id="mod-author" ac="AC-MOD-03" query="farmerbr"><expectTop n="3" minHits="1" origin="mod" /></case>
     <!--
-      Adaptação F4 (documentada): a query original era "custom trailer 24t".
-      Com o ComparatorParser (F4), "24t" passa a ser interpretado como uma
-      constraint de massa (24000 kg ±5%) — nenhum item do catálogo sintético
-      tem spec de peso, então a constraint elimina todos os resultados
-      (comportamento correto de filtro eliminatório, PRD §6.6). Trocado
-      para "custom trailer" (sem o sufixo ambíguo de unidade), que ainda
-      identifica o item de mod via nome/categoria.
+      Query original do spec restaurada: "24t" vira constraint de massa
+      (24000 kg ±5%), e o Custom Trailer 24T do catálogo sintético tem
+      spec weight=24000 desde a expansão do catálogo para ~80 itens.
     -->
-    <case id="mod-indexed" ac="AC-MOD-01" query="custom trailer">
+    <case id="mod-indexed" ac="AC-MOD-01" query="custom trailer 24t">
         <expectTop n="3" minHits="1" origin="mod" />
+        <expectConstraint spec="mass" op="between" min="22800" max="25200" />
     </case>
     <case id="res-empty" ac="AC-RES-01" query="zzzzqqqq">
         <expectEmpty />
@@ -136,4 +133,19 @@
     </case>
     <case id="ctx-compat" req="RF-049" query="implementos compativeis com este trator"><expectNoError /></case>
     <case id="origin-dlc" req="RF-047" query="dlc pulverizador"><expectConcept kind="origin" value="dlc" /></case>
+    <!-- Catálogo de ~80 itens: categorias de alias sem itens até então e spec de massa. -->
+    <case id="alias-arado" req="RF-024" query="arado"><expectTop n="2" minHits="2" category="PLOWS*" /></case>
+    <case id="alias-grade" req="RF-024" query="grade"><expectTop n="3" minHits="3" category="CULTIVATORS*" /></case>
+    <case id="alias-caminhao" req="RF-024" query="caminhao"><expectAll top="2" category="TRUCKS*" /></case>
+    <case id="alias-telescopica" req="RF-024" query="telescopica">
+        <expectAll top="2" category="TELELOADERS*" />
+    </case>
+    <case id="mass-gt" req="RF-030" query="reboque acima de 10 t">
+        <expectConstraint spec="mass" op="gt" min="10000" />
+        <expectAll top="2" category="TRAILERS*" />
+        <expectReasons field="spec.weight" kind="constraint" />
+    </case>
+    <case id="mass-kg" req="RF-030" query="peso frontal ate 2000 kg">
+        <expectFirst name="Peso Frontal 1500" />
+    </case>
 </golden>

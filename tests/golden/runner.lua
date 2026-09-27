@@ -267,9 +267,137 @@ local function evalExpectation(node, ctx)
     end
 end
 
+-- Expectativas que definem um conjunto de itens relevantes (para as métricas
+-- de ranking). As demais (constraint, termos, vazio…) não entram em P@5/MRR.
+local RANKED_TAGS = { expectTop = true, expectAll = true, expectFirst = true }
+-- Casos que exigem ao menos um resultado: só eles entram na taxa de vazios
+-- (casos só de parser, negativos e expectEmpty ficam fora da conta).
+local NEEDS_RESULTS_TAGS =
+    { expectTop = true, expectAll = true, expectFirst = true, expectRankBefore = true, expectReasons = true }
+
+--- Predicado de relevância do caso: um item é relevante se satisfaz os
+--- atributos de alguma expectativa de ranking (expectFirst: nome exato).
+--- @return (fun(item:IndexedItem):boolean)|nil  nil = caso sem julgamento de relevância
+local function relevanceOf(caseNode)
+    local preds = {}
+    for _, node in ipairs(caseNode.children) do
+        if RANKED_TAGS[node.tag] then
+            if node.tag == "expectFirst" then
+                local name = node.attrs.name
+                preds[#preds + 1] = function(item)
+                    return item.fields.name ~= nil and item.fields.name.raw == name
+                end
+            else
+                local attrs = conceptAttrs(node)
+                preds[#preds + 1] = function(item)
+                    return itemMatchesAttrs(item, attrs)
+                end
+            end
+        end
+    end
+    if #preds == 0 then
+        return nil
+    end
+    return function(item)
+        for _, p in ipairs(preds) do
+            if p(item) then
+                return true
+            end
+        end
+        return false
+    end
+end
+
+--- Métricas de ranking de um caso (F2 §2.6): precisão@5 sobre k = min(5,
+--- relevantes no corpus) — assim um caso com 1 item relevante ainda pode
+--- valer 1.0 — e reciprocal rank do primeiro relevante.
+--- @return {p5:number, rr:number}|nil
+function M.rankMetrics(caseNode, results, index)
+    local isRelevant = relevanceOf(caseNode)
+    if not isRelevant then
+        return nil
+    end
+    local relevantInCorpus = 0
+    for _, item in ipairs(index and index.items or {}) do
+        if isRelevant(item) then
+            relevantInCorpus = relevantInCorpus + 1
+        end
+    end
+    local k = math.min(5, relevantInCorpus)
+    local hits, rr = 0, 0
+    for i, r in ipairs(results) do
+        if isRelevant(r.item) then
+            if i <= k then
+                hits = hits + 1
+            end
+            if rr == 0 then
+                rr = 1 / i
+            end
+        end
+        if i >= k and rr > 0 then
+            break
+        end
+    end
+    return { p5 = (k > 0) and (hits / k) or 0, rr = rr }
+end
+
+--- Acumulador das métricas agregadas do corpus golden.
+function M.newMetrics()
+    return { cases = 0, needResults = 0, empty = 0, ranked = 0, p5Sum = 0, rrSum = 0 }
+end
+
+--- @param acc table  M.newMetrics()
+--- @param caseResult table  retorno de M.runCase
+function M.accumulate(acc, caseResult)
+    acc.cases = acc.cases + 1
+    if caseResult.needsResults then
+        acc.needResults = acc.needResults + 1
+        if caseResult.empty then
+            acc.empty = acc.empty + 1
+        end
+    end
+    if caseResult.rank then
+        acc.ranked = acc.ranked + 1
+        acc.p5Sum = acc.p5Sum + caseResult.rank.p5
+        acc.rrSum = acc.rrSum + caseResult.rank.rr
+    end
+end
+
+--- Texto do relatório (impresso e gravado em dist/golden-metrics.txt).
+function M.formatMetrics(acc)
+    local lines = {
+        string.format("casos: %d (com julgamento de ranking: %d)", acc.cases, acc.ranked),
+        string.format("precisao@5: %.3f", acc.ranked > 0 and acc.p5Sum / acc.ranked or 0),
+        string.format("MRR: %.3f", acc.ranked > 0 and acc.rrSum / acc.ranked or 0),
+        string.format(
+            "taxa de consultas vazias: %.3f (%d de %d casos que exigem resultado)",
+            acc.needResults > 0 and acc.empty / acc.needResults or 0,
+            acc.empty,
+            acc.needResults
+        ),
+    }
+    return table.concat(lines, "\n") .. "\n"
+end
+
+--- Grava o relatório; `dist/` pode não existir num checkout limpo.
+function M.writeMetrics(acc, path)
+    path = path or "dist/golden-metrics.txt"
+    local fh = io.open(path, "w")
+    if not fh then
+        os.execute("mkdir -p dist")
+        fh = io.open(path, "w")
+    end
+    if fh then
+        fh:write(M.formatMetrics(acc))
+        fh:close()
+    end
+    return fh ~= nil
+end
+
 --- Roda um único <case>; retorna métricas simples do caso (para agregação).
 --- @param primaryLocale string|nil  "pt" (padrão) ou "en" (tests/golden/queries.en.xml)
-function M.runCase(caseNode, fixtureProfile, primaryLocale, weightsOverride)
+--- @param metrics table|nil  acumulador (M.newMetrics); preenchido mesmo se o caso falhar
+function M.runCase(caseNode, fixtureProfile, primaryLocale, weightsOverride, metrics)
     local entry = M.serviceFor(fixtureProfile, primaryLocale, weightsOverride)
     local query = caseNode.attrs.query
     local ui = nil -- filtros de UI entram na F7 (painel); FilterEngine já aplica constraints
@@ -278,11 +406,28 @@ function M.runCase(caseNode, fixtureProfile, primaryLocale, weightsOverride)
         results = results,
         query = parsedQuery or { raw = query, terms = {}, concepts = {}, constraints = {} },
         logger = entry.logger,
+        metrics = metrics,
     }
+    -- Métricas antes das asserções: um caso que falha também conta no relatório.
+    local needsResults = false
+    for _, node in ipairs(caseNode.children) do
+        if NEEDS_RESULTS_TAGS[node.tag] then
+            needsResults = true
+        end
+    end
+    local index = entry.lifecycle and entry.lifecycle.index
+    local caseResult = {
+        empty = (#results == 0),
+        needsResults = needsResults,
+        rank = M.rankMetrics(caseNode, results, index),
+    }
+    if ctx.metrics then
+        M.accumulate(ctx.metrics, caseResult)
+    end
     for _, node in ipairs(caseNode.children) do
         evalExpectation(node, ctx)
     end
-    return { empty = (#results == 0) }
+    return caseResult
 end
 
 --- Carrega um arquivo queries.<lang>.xml e devolve a lista de <case>.

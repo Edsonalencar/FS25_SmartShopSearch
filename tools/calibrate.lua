@@ -1,7 +1,8 @@
 #!/usr/bin/env lua
 -- Calibração dos pesos de ranking (F9, RF-040): busca em grade sobre
--- minScoreRel e as penalidades, maximizando o número de casos golden que
--- passam (proxy de MRR/precisão@5 — nenhum caso pode piorar). Reaproveita
+-- minScoreRel e as penalidades. Critério: nenhum caso golden pode passar a
+-- falhar; entre os que não pioram, vence o maior MRR (desempate: precisão@5).
+-- Reaproveita
 -- tests/golden/runner.lua. Os valores finais (se diferentes do padrão) vão
 -- para docs/adr/0015-ranking-weights.md.
 --
@@ -40,14 +41,15 @@ local function fixturesOf(caseNode)
 end
 
 --- Roda todos os casos golden com uma dada tabela de pesos; devolve
---- {passed, total, failures={id,...}}.
+--- {passed, total, failures={id,...}, mrr, p5}.
 local function evaluate(weights)
     local cases = loadAllCases()
     local passed, total, failures = 0, 0, {}
+    local metrics = runner.newMetrics()
     for _, entry in ipairs(cases) do
         for _, fixtureProfile in ipairs(fixturesOf(entry.node)) do
             total = total + 1
-            local ok, err = pcall(runner.runCase, entry.node, fixtureProfile, entry.lang, weights)
+            local ok, err = pcall(runner.runCase, entry.node, fixtureProfile, entry.lang, weights, metrics)
             if ok then
                 passed = passed + 1
             else
@@ -55,7 +57,14 @@ local function evaluate(weights)
             end
         end
     end
-    return { passed = passed, total = total, failures = failures }
+    local ranked = math.max(1, metrics.ranked)
+    return {
+        passed = passed,
+        total = total,
+        failures = failures,
+        mrr = metrics.rrSum / ranked,
+        p5 = metrics.p5Sum / ranked,
+    }
 end
 
 local function deepCopy(t)
@@ -74,9 +83,11 @@ local function main()
     local baseline = evaluate(Weights)
     print(
         string.format(
-            "baseline: %d/%d casos golden passam (pesos padrão de core/rank/Weights.lua)",
+            "baseline: %d/%d casos golden passam, MRR=%.3f P@5=%.3f (pesos de core/rank/Weights.lua)",
             baseline.passed,
-            baseline.total
+            baseline.total,
+            baseline.mrr,
+            baseline.p5
         )
     )
     for _, f in ipairs(baseline.failures) do
@@ -91,8 +102,8 @@ local function main()
     end
 
     -- Grade pequena de candidatos ao redor dos valores padrão (RF-040): cada
-    -- candidato é testado; só substitui o baseline se PASSAR MAIS casos, sem
-    -- nunca aceitar um candidato que faça o baseline piorar.
+    -- candidato é testado; só substitui o melhor atual se não fizer nenhum
+    -- caso passar a falhar e tiver MRR (ou, empatado, P@5) maior.
     local candidates = {
         { minScoreRel = 0.20 },
         { minScoreRel = 0.30 },
@@ -116,7 +127,7 @@ local function main()
         end
         local result = evaluate(candidate)
         print(string.format(
-            "candidato %d (%s): %d/%d",
+            "candidato %d (%s): %d/%d MRR=%.3f P@5=%.3f",
             i,
             table.concat(
                 (function()
@@ -129,22 +140,27 @@ local function main()
                 ","
             ),
             result.passed,
-            result.total
+            result.total,
+            result.mrr,
+            result.p5
         ))
-        if result.passed > best.result.passed then
+        local EPS = 1e-9
+        local better = result.mrr > best.result.mrr + EPS
+            or (math.abs(result.mrr - best.result.mrr) <= EPS and result.p5 > best.result.p5 + EPS)
+        if result.passed >= baseline.passed and better then
             best = { weights = candidate, result = result, label = "candidato " .. i }
         end
     end
 
-    if best.result.passed > baseline.passed then
+    if best.label then
         print(
             string.format(
-                "\nMELHOR CANDIDATO ENCONTRADO: %s (%d/%d vs baseline %d/%d) — considerar adotar",
+                "\nMELHOR CANDIDATO ENCONTRADO: %s (MRR=%.3f P@5=%.3f vs baseline MRR=%.3f P@5=%.3f) — considerar adotar",
                 best.label,
-                best.result.passed,
-                best.result.total,
-                baseline.passed,
-                baseline.total
+                best.result.mrr,
+                best.result.p5,
+                baseline.mrr,
+                baseline.p5
             )
         )
     else
