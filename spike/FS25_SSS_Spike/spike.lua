@@ -174,7 +174,8 @@ local function extractRawItemXml(si)
             end
         end)
     end
-    local origin = isMod and "mod" or (dlcTitle and "dlc" or "base")
+    -- No Lua, string vazia é truthy; o jogo usa "" para itens sem DLC.
+    local origin = isMod and "mod" or (dlcTitle and dlcTitle ~= "" and "dlc" or "base")
 
     local out = { "    <item" .. attr("xmlFilename", xmlFilename) .. attr("name", name) }
     if brand then
@@ -207,8 +208,16 @@ local function extractRawItemXml(si)
     return table.concat(out) .. " />"
 end
 
-function SSSSpike.dump(profileName)
-    profileName = profileName or "base"
+function SSSSpike.dump(selfOrProfile, profileArg)
+    -- addConsoleCommand invoca o método com SSSSpike como primeiro argumento.
+    local profileName = type(selfOrProfile) == "table" and profileArg or selfOrProfile
+    if type(profileName) ~= "string" or profileName == "" then
+        profileName = "base"
+    end
+    if not profileName:match("^[%w_+%-]+$") then
+        print("[SSSSpike] ERRO: nome de perfil inválido")
+        return
+    end
     print("[SSSSpike] iniciando dump do perfil " .. profileName)
     local lines = { '<?xml version="1.0" encoding="utf-8" standalone="no"?>', '<catalog profile="' .. profileName .. '">' }
     local specKeys = {}
@@ -243,8 +252,10 @@ function SSSSpike.dump(profileName)
     end
     lines[#lines + 1] = "</catalog>"
 
-    local dumpDir = (g_modSettingsDirectory or "") .. "FS25_SSS_Spike/dumps/"
+    local settingsDir = (g_modSettingsDirectory or "") .. "FS25_SSS_Spike/"
+    local dumpDir = settingsDir .. "dumps/"
     pcall(function()
+        createFolder(settingsDir)
         createFolder(dumpDir)
     end)
     local path = dumpDir .. "catalog_" .. profileName .. ".xml"
@@ -277,7 +288,8 @@ end
 --    e lista vazia.
 -- ===========================================================================
 
-function SSSSpike.openGui(empty)
+function SSSSpike.openGui(selfOrEmpty)
+    local empty = selfOrEmpty == true
     if not g_shopMenu then
         print("[SSSSpike] g_shopMenu não existe (loja não está aberta?)")
         return

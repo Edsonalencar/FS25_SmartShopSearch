@@ -83,7 +83,7 @@ function StoreCatalogSource:toRaw(si)
             end
         end)
         raw.origin = "mod"
-    elseif raw.dlcTitle then
+    elseif raw.dlcTitle and raw.dlcTitle ~= "" then
         raw.origin = "dlc"
     else
         raw.origin = "base"
